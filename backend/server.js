@@ -1,17 +1,36 @@
-import express from 'express';
 import cors from 'cors';
+import express from 'express';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT;
-const CLIENT_URL = process.env.CLIENT_URL;
 
-app.use(cors({
-    origin: CLIENT_URL,
-    credentials: true
-}));
+const allowedOrigins = [
+    'http://localhost:5173',
+    'https://newcastlewildcats.co.uk',
+    'https://www.newcastlewildcats.co.uk',
+    process.env.CLIENT_URL,
+].filter(Boolean);
+
+app.use(
+    cors({
+        origin: function (origin, callback) {
+            if (!origin) return callback(null, true);
+
+            const cleanOrigin = origin.replace(/\/$/, '');
+
+            if (allowedOrigins.includes(cleanOrigin) || allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            } else {
+                return callback(new Error(`CORS blocked for origin: ${origin}`));
+            }
+        },
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+    })
+);
 
 app.use(express.json());
 
