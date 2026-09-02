@@ -13,6 +13,11 @@ export default function Navbar() {
         { name: "Contact", path: "/contact" },
     ];
 
+    const socialLinks = {
+        buiha: "https://buiha.org.uk/club/newcastle",
+        nusu: "https://nusu.co.uk/clubs/view/230",
+    };
+
     return (
         <header className="relative w-full z-50 select-none">
             <div className="h-1 w-full bg-wildcats-red" />
@@ -38,7 +43,7 @@ export default function Navbar() {
                                 <NavLink
                                     to={link.path}
                                     className={({ isActive }) =>
-                                        `relative py-1 transition-colors duration-150 group ${
+                                        `relative py-1 transition-colors duration-150 group flex flex-col items-start ${
                                             isActive ? "text-white" : "text-white/70 hover:text-white"
                                         }`
                                     }
@@ -47,7 +52,7 @@ export default function Navbar() {
                                         <>
                                             <span>{link.name}</span>
                                             <span
-                                                className={`absolute bottom-0 left-0 h-0.5 bg-wildcats-red transition-all duration-200 ${
+                                                className={`h-0.5 bg-wildcats-red transition-all duration-200 mt-0.5 ${
                                                     isActive ? "w-full" : "w-0 group-hover:w-full"
                                                 }`}
                                             />
@@ -65,7 +70,7 @@ export default function Navbar() {
                     <div className="flex items-center gap-2.5 sm:gap-5 z-10 shrink-0">
                         <div className="flex items-center gap-2 sm:gap-4">
                             <a
-                                href="https://buiha.org.uk"
+                                href={socialLinks.buiha}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="opacity-80 hover:opacity-100 transition-opacity flex items-center"
@@ -78,7 +83,7 @@ export default function Navbar() {
                             </a>
                             <div className="h-4.5 sm:h-6 w-px bg-white/20" />
                             <a
-                                href="https://nusu.co.uk"
+                                href={socialLinks.nusu}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="opacity-80 hover:opacity-100 transition-opacity flex items-center"
@@ -98,11 +103,11 @@ export default function Navbar() {
                                 className="relative flex flex-col justify-center items-center w-9 h-9 sm:w-10 sm:h-10 border border-white/20 rounded bg-white/5 hover:bg-white/10 p-2 focus:outline-none transition-colors"
                                 onClick={() => setOpen(!open)}
                             >
-                <span
-                    className={`block h-0.5 w-4.5 bg-white transition-all duration-300 absolute ${
-                        open ? "rotate-45" : "-translate-y-1.5"
-                    }`}
-                />
+                                <span
+                                    className={`block h-0.5 w-4.5 bg-white transition-all duration-300 absolute ${
+                                        open ? "rotate-45" : "-translate-y-1.5"
+                                    }`}
+                                />
                                 <span
                                     className={`block h-0.5 w-4.5 bg-white transition-all duration-300 ${
                                         open ? "opacity-0 scale-0" : "opacity-100"
@@ -126,7 +131,7 @@ export default function Navbar() {
                                 to={link.path}
                                 onClick={() => setOpen(false)}
                                 className={({ isActive }) =>
-                                    `relative flex flex-col py-2.5 transition-colors ${
+                                    `relative flex flex-col py-2.5 transition-colors items-start w-fit ${
                                         isActive ? "text-white font-semibold" : "text-white/70 hover:text-white"
                                     }`
                                 }
@@ -135,7 +140,7 @@ export default function Navbar() {
                                     <>
                                         <span className="text-[11px] uppercase tracking-[0.2em]">{link.name}</span>
                                         {isActive && (
-                                            <span className="h-0.5 w-8 bg-wildcats-red mt-1 rounded-full" />
+                                            <span className="h-0.5 w-full bg-wildcats-red mt-1 rounded-full" />
                                         )}
                                     </>
                                 )}

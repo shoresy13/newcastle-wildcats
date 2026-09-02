@@ -37,48 +37,47 @@ export default function Footer() {
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-start md:justify-between space-y-8 md:space-y-0 text-center md:text-left text-xs">
 
                     <div className="flex flex-col items-center md:items-start space-y-3">
-                        <NavLink to="/" className="flex items-center gap-3">
-                            <img
-                                src={wildcatsLogo}
-                                alt="Newcastle Wildcats Logo"
-                                className="h-10 sm:h-12 md:h-14 w-auto shrink-0 object-contain"
-                            />
-
-                            <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3">
+                            <NavLink to="/" className="flex items-center gap-3">
+                                <img
+                                    src={wildcatsLogo}
+                                    alt="Newcastle Wildcats Logo"
+                                    className="h-10 sm:h-12 md:h-14 w-auto shrink-0 object-contain"
+                                />
                                 <div className="flex flex-col font-wildcats font-bold uppercase text-white leading-tight text-xs sm:text-sm tracking-wider text-left">
                                     <span>NEWCASTLE</span>
                                     <span>WILDCATS</span>
                                 </div>
+                            </NavLink>
 
-                                <div className="h-6 w-px bg-white/20" />
-                                <div className="flex items-center gap-2">
-                                    <a
-                                        href={socialLinks.buiha}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="opacity-80 hover:opacity-100 transition-opacity flex items-center"
-                                    >
-                                        <img
-                                            src="https://buiha.org.uk/buiha.png"
-                                            alt="BUIHA Logo"
-                                            className="h-6 sm:h-7 w-auto object-contain"
-                                        />
-                                    </a>
-                                    <a
-                                        href={socialLinks.nusu}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="opacity-80 hover:opacity-100 transition-opacity flex items-center"
-                                    >
-                                        <img
-                                            src="https://assets-cdn.sums.digital/NW/White_Mono_NUSU_Logo_.png"
-                                            alt="NUSU Logo"
-                                            className="h-5 sm:h-6 w-auto object-contain"
-                                        />
-                                    </a>
-                                </div>
+                            <div className="h-6 w-px bg-white/20" />
+                            <div className="flex items-center gap-2">
+                                <a
+                                    href={socialLinks.buiha}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="opacity-80 hover:opacity-100 transition-opacity flex items-center"
+                                >
+                                    <img
+                                        src="https://buiha.org.uk/buiha.png"
+                                        alt="BUIHA Logo"
+                                        className="h-6 sm:h-7 w-auto object-contain"
+                                    />
+                                </a>
+                                <a
+                                    href={socialLinks.nusu}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="opacity-80 hover:opacity-100 transition-opacity flex items-center"
+                                >
+                                    <img
+                                        src="https://assets-cdn.sums.digital/NW/White_Mono_NUSU_Logo_.png"
+                                        alt="NUSU Logo"
+                                        className="h-5 sm:h-6 w-auto object-contain"
+                                    />
+                                </a>
                             </div>
-                        </NavLink>
+                        </div>
 
                         <div className="space-y-1 font-sans font-semibold tracking-wider text-[10px] text-white/80">
                             <p>©{currentYear} BY NEWCASTLE WILDCATS.</p>
