@@ -11,6 +11,7 @@ import Games from "./pages/Games.jsx";
 import Teams from "./pages/Teams.jsx";
 import Contact from "./pages/Contact.jsx";
 
+
 function ScrollToTop() {
     const { pathname } = useLocation();
 
@@ -23,10 +24,10 @@ function ScrollToTop() {
 
 export function Layout() {
     return (
-        <div>
+        <div className="min-h-screen flex flex-col ">
             <ScrollToTop />
             <Navbar />
-            <main>
+            <main className="w-full grow min-h-[calc(100vh-80px)]">
                 <Outlet />
             </main>
             <Footer />
