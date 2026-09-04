@@ -18,7 +18,7 @@ export default function Contact() {
                         Under Development
                     </h1>
 
-                    <p className="text-xs sm:text-sm text-gray-600 uppercase tracking-wider font-lighbold max-w-sm leading-relaxed mb-8">
+                    <p className="text-xs sm:text-sm text-gray-600 uppercase tracking-widest font-lighbold max-w-sm leading-relaxed mb-8">
                         The Newcastle Wildcats website is currently being updated. Please check back soon!
                     </p>
 
