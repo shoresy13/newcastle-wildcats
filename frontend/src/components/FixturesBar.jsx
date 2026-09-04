@@ -68,17 +68,48 @@ export default function FixturesTopBar() {
 
     const dateColumns = Object.entries(groupedByDate);
 
-    const scrollLeft = () => {
-        if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollBy({ left: -304, behavior: 'smooth' });
+    const getAllSnapElements = () => {
+        if (!scrollContainerRef.current) return [];
+        const elements = [];
+        dateColumns.forEach(([dateStr, dayGames]) => {
+            const dateEl = document.getElementById(`date-block-${dateStr}`);
+            if (dateEl) elements.push(dateEl);
+            dayGames.forEach(game => {
+                const gameEl = document.getElementById(`game-card-${game._id}`);
+                if (gameEl) elements.push(gameEl);
+            });
+        });
+        return elements;
+    };
+
+    const scrollByDirection = (direction) => {
+        if (!scrollContainerRef.current) return;
+        const container = scrollContainerRef.current;
+        const currentScroll = container.scrollLeft;
+        const elements = getAllSnapElements();
+        if (elements.length === 0) return;
+
+        let currentIndex = 0;
+        let minDiff = Infinity;
+        elements.forEach((el, idx) => {
+            const diff = Math.abs(el.offsetLeft - currentScroll);
+            if (diff < minDiff) {
+                minDiff = diff;
+                currentIndex = idx;
+            }
+        });
+
+        let targetIndex = direction === 'right' ? currentIndex + 1 : currentIndex - 1;
+        targetIndex = Math.max(0, Math.min(targetIndex, elements.length - 1));
+
+        const targetElement = elements[targetIndex];
+        if (targetElement) {
+            container.scrollTo({ left: targetElement.offsetLeft, behavior: 'smooth' });
         }
     };
 
-    const scrollRight = () => {
-        if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollBy({ left: 304, behavior: 'smooth' });
-        }
-    };
+    const scrollLeft = () => scrollByDirection('left');
+    const scrollRight = () => scrollByDirection('right');
 
     const formatTeamName = (team) => {
         if (!team) return '';
@@ -86,6 +117,41 @@ export default function FixturesTopBar() {
             return team.shortName.replace('-', ' ');
         }
         return team.shortName || team.name;
+    };
+
+    const formatGameTypeBarLabel = (type) => {
+        if (!type) return 'GAME';
+
+        if (type.startsWith('Cup Comp North - ')) {
+            const sub = type.replace('Cup Comp North - ', '');
+            const shortSub = sub
+                .replace('Checking ', 'CHK')
+                .replace('Non-Check ', 'N-CHK')
+                .replace("Women's", 'W')
+                .replace(/\s+/g, '');
+            return `N-${shortSub} NORTH`;
+        }
+
+        if (type.startsWith('Cup Comp South - ')) {
+            const sub = type.replace('Cup Comp South - ', '');
+            const shortSub = sub
+                .replace('Checking ', 'CHK')
+                .replace('Non-Check ', 'N-CHK')
+                .replace("Women's", 'W')
+                .replace(/\s+/g, '');
+            return `S-${shortSub} SOUTH`;
+        }
+
+        if (type.startsWith('National Championships - ')) {
+            const sub = type.replace('National Championships - ', '');
+            const shortSub = sub
+                .replace('Checking ', 'CHK ')
+                .replace('Womens ', 'WMS ')
+                .replace('Non-Check ', 'N-CHK ');
+            return `${shortSub.toUpperCase()} NATS`;
+        }
+
+        return type.toUpperCase();
     };
 
     if (loading || games.length === 0) {
@@ -115,7 +181,7 @@ export default function FixturesTopBar() {
                 style={{
                     scrollbarWidth: 'none',
                     msOverflowStyle: 'none',
-                    scrollSnapType: 'x mandatory',
+                    scrollSnapType: 'x proximity',
                     scrollBehavior: 'smooth'
                 }}
             >
@@ -123,7 +189,7 @@ export default function FixturesTopBar() {
                     div::-webkit-scrollbar { display: none; }
                 `}</style>
 
-                <div className="flex items-stretch min-w-max">
+                <div className="flex items-center min-w-max">
                     {dateColumns.map(([dateStr, dayGames]) => {
                         const dateObj = new Date(dateStr);
                         const month = dateObj.toLocaleDateString(undefined, { month: 'short' }).toUpperCase();
@@ -137,7 +203,7 @@ export default function FixturesTopBar() {
                                 <div
                                     id={`date-block-${dateStr}`}
                                     className="w-[46px] sm:w-[54px] flex flex-col items-center justify-center bg-[#f4f4f4] border-r border-gray-200 px-1 flex-shrink-0"
-                                    style={{ scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
+                                    style={{ scrollSnapAlign: 'start' }}
                                 >
                                     <span className="text-[9px] sm:text-[10px] font-bold text-gray-500 leading-tight tracking-wider">{month}</span>
                                     <span className="text-[14px] sm:text-[16px] font-extrabold text-gray-900 leading-none mt-0.5">{day}</span>
@@ -151,13 +217,14 @@ export default function FixturesTopBar() {
                                         return (
                                             <div
                                                 key={game._id}
+                                                id={`game-card-${game._id}`}
                                                 className={`w-[210px] sm:w-[250px] flex flex-col justify-between px-3 sm:px-3.5 py-1 sm:py-1.5 bg-white hover:bg-gray-50/50 transition-colors ${
                                                     idx !== dayGames.length - 1 ? 'border-r-2 border-gray-200' : 'border-r border-gray-300'
                                                 } flex-shrink-0`}
-                                                style={{ scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
+                                                style={{ scrollSnapAlign: 'start' }}
                                             >
                                                 <div className="text-[7px] sm:text-[8px] font-bold text-gray-400 uppercase tracking-wider truncate whitespace-nowrap mb-0.5 sm:mb-1">
-                                                    {game.gameType || 'GAME'}
+                                                    {formatGameTypeBarLabel(game.gameType)}
                                                 </div>
 
                                                 <div className="flex items-center justify-between">
@@ -196,9 +263,9 @@ export default function FixturesTopBar() {
                                                     </div>
                                                 </div>
 
-                                                <div className="flex items-center justify-between pt-1 border-t border-gray-100 text-[9px] sm:text-[10px] font-semibold text-gray-600 tracking-wide mt-1">
+                                                <div className="flex items-center justify-between text-[7px] sm:text-[8px] font-bold text-gray-400 uppercase tracking-wider mt-1 gap-2">
                                                     <span className="shrink-0">{timeString}</span>
-                                                    <span className="truncate max-w-[120px] sm:max-w-[145px] text-right font-normal text-gray-500">{game.venue}</span>
+                                                    <span className="truncate text-right">{game.venue}</span>
                                                 </div>
                                             </div>
                                         );
