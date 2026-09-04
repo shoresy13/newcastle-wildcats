@@ -6,6 +6,7 @@ const gameSchema = new mongoose.Schema({
     gameType: { type: String, required: true },
     status: { type: String, enum: ['UPCOMING', 'END'], default: 'UPCOMING' },
     venue: { type: String, default: '' },
+    buihaLink: { type: String, default: '' },
     homeTeam: {
         name: { type: String, required: true },
         shortName: { type: String, required: true },

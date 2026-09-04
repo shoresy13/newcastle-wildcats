@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-export default function FixturesTopBar() {
+export default function FixturesBar() {
     const [games, setGames] = useState([]);
     const [loading, setLoading] = useState(true);
     const [resizeKey, setResizeKey] = useState(0);
@@ -214,16 +214,13 @@ export default function FixturesTopBar() {
                                         const isEnded = game.status === 'END' || game.status === 'FINAL';
                                         const timeString = new Date(game.date).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).toUpperCase();
 
-                                        return (
-                                            <div
-                                                key={game._id}
-                                                id={`game-card-${game._id}`}
-                                                className={`w-[210px] sm:w-[250px] flex flex-col justify-between px-3 sm:px-3.5 py-1 sm:py-1.5 bg-white hover:bg-gray-50/50 transition-colors ${
-                                                    idx !== dayGames.length - 1 ? 'border-r-2 border-gray-200' : 'border-r border-gray-300'
-                                                } flex-shrink-0`}
-                                                style={{ scrollSnapAlign: 'start' }}
-                                            >
-                                                <div className="text-[7px] sm:text-[8px] font-bold text-gray-400 uppercase tracking-wider truncate whitespace-nowrap mb-0.5 sm:mb-1">
+                                        const cardClassName = `w-[210px] sm:w-[250px] h-full flex flex-col justify-between px-3 sm:px-3.5 py-1 sm:py-1.5 bg-white hover:bg-blue-50/70 hover:shadow-inner transition-all duration-150 ${
+                                            idx !== dayGames.length - 1 ? 'border-r-2 border-gray-200' : 'border-r border-gray-300'
+                                        } flex-shrink-0`;
+
+                                        const cardContent = (
+                                            <>
+                                                <div className="text-[7px] sm:text-[8px] font-bold text-gray-400 group-hover:text-wildcats-blue uppercase tracking-wider truncate whitespace-nowrap mb-0.5 sm:mb-1 transition-colors">
                                                     {formatGameTypeBarLabel(game.gameType)}
                                                 </div>
 
@@ -267,6 +264,30 @@ export default function FixturesTopBar() {
                                                     <span className="shrink-0">{timeString}</span>
                                                     <span className="truncate text-right">{game.venue}</span>
                                                 </div>
+                                            </>
+                                        );
+
+                                        return (
+                                            <div
+                                                key={game._id}
+                                                id={`game-card-${game._id}`}
+                                                className="flex flex-shrink-0 items-stretch group"
+                                                style={{ scrollSnapAlign: 'start' }}
+                                            >
+                                                {game.buihaLink ? (
+                                                    <a
+                                                        href={game.buihaLink}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className={cardClassName}
+                                                    >
+                                                        {cardContent}
+                                                    </a>
+                                                ) : (
+                                                    <div className={cardClassName}>
+                                                        {cardContent}
+                                                    </div>
+                                                )}
                                             </div>
                                         );
                                     })}

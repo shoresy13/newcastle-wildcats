@@ -94,6 +94,7 @@ export default function GameManager() {
         gameType: GAME_TYPES[0],
         status: 'UPCOMING',
         venue: 'Whitley Bay Ice Rink',
+        buihaLink: '',
         homeScore: 0,
         awayScore: 0,
     });
@@ -164,6 +165,7 @@ export default function GameManager() {
             gameType: formData.gameType,
             status: isFormPastDate ? 'END' : formData.status,
             venue: formData.venue,
+            buihaLink: formData.buihaLink,
             homeTeam: {
                 name: `${selectedHome.name} ${homeTeamLetter}`,
                 shortName: `${selectedHome.shortName}-${homeTeamLetter}`,
@@ -196,7 +198,7 @@ export default function GameManager() {
 
             setMessage({ text: 'Game successfully added!', isError: false });
             fetchGames();
-            setFormData(prev => ({ ...prev, homeScore: 0, awayScore: 0 }));
+            setFormData(prev => ({ ...prev, homeScore: 0, awayScore: 0, buihaLink: '' }));
         } catch (err) {
             setMessage({ text: err.message, isError: true });
         }
@@ -253,6 +255,7 @@ export default function GameManager() {
             time: localTime,
             season: game.season || SEASONS[0],
             venue: game.venue,
+            buihaLink: game.buihaLink || '',
             gameType: game.gameType,
             status: game.status === 'LIVE' ? 'UPCOMING' : game.status,
             homeClubIdx: hIdx >= 0 ? hIdx : 0,
@@ -273,6 +276,7 @@ export default function GameManager() {
             date: combinedDateTime.toISOString(),
             season: editFormData.season,
             venue: editFormData.venue,
+            buihaLink: editFormData.buihaLink,
             gameType: editFormData.gameType,
             status: editFormData.status,
             homeTeam: {
@@ -314,7 +318,7 @@ export default function GameManager() {
                 </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-4">
                         <div>
                             <label className="block text-xs font-bold uppercase text-gray-600 mb-1">Season</label>
                             <select
@@ -373,6 +377,16 @@ export default function GameManager() {
                                 value={formData.venue}
                                 onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
                                 placeholder="Whitley Bay Ice Rink"
+                                className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-wildcats-blue"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold uppercase text-gray-600 mb-1">BUIHA Link</label>
+                            <input
+                                type="url"
+                                value={formData.buihaLink}
+                                onChange={(e) => setFormData({ ...formData, buihaLink: e.target.value })}
+                                placeholder="https://buiha.org.uk/..."
                                 className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-wildcats-blue"
                             />
                         </div>
@@ -510,7 +524,7 @@ export default function GameManager() {
                                 >
                                     {isEditing ? (
                                         <div className="space-y-4">
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3">
                                                 <div>
                                                     <label className="block text-[10px] font-bold uppercase text-gray-500 mb-0.5">Season</label>
                                                     <select
@@ -545,6 +559,15 @@ export default function GameManager() {
                                                         type="text"
                                                         value={editFormData.venue}
                                                         onChange={(e) => setEditFormData({ ...editFormData, venue: e.target.value })}
+                                                        className="w-full border p-1.5 text-xs bg-white font-semibold"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-bold uppercase text-gray-500 mb-0.5">BUIHA Link</label>
+                                                    <input
+                                                        type="url"
+                                                        value={editFormData.buihaLink}
+                                                        onChange={(e) => setEditFormData({ ...editFormData, buihaLink: e.target.value })}
                                                         className="w-full border p-1.5 text-xs bg-white font-semibold"
                                                     />
                                                 </div>
@@ -689,6 +712,14 @@ export default function GameManager() {
                                                     <span>{new Date(game.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                                     <span className="text-gray-300">|</span>
                                                     <span className="text-gray-600 font-semibold italic">{game.venue}</span>
+                                                    {game.buihaLink && (
+                                                        <>
+                                                            <span className="text-gray-300">|</span>
+                                                            <a href={game.buihaLink} target="_blank" rel="noreferrer" className="text-wildcats-blue underline hover:text-blue-700">
+                                                                BUIHA Link
+                                                            </a>
+                                                        </>
+                                                    )}
                                                 </div>
 
                                                 <div className="text-sm font-bold text-gray-900 flex items-center gap-2 pt-0.5">
