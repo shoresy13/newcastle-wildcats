@@ -1,13 +1,23 @@
+import dns from 'node:dns';
+dns.setServers(['8.8.8.8', '1.1.1.1']);
+
 import cors from 'cors';
 import express from 'express';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
+import mongoose from 'mongoose';
+
+import User from './models/User.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+mongoose
+    .connect(process.env.MONGO_URI)
+    .then(() => console.log('MongoDB Atlas Connected Successfully'))
+    .catch((err) => console.error('MongoDB Connection Error:', err));
 
 const allowedOrigins = [
     'http://localhost:5173',
@@ -35,38 +45,31 @@ app.use(
 
 app.use(express.json());
 
-// TESTING THE LOGIN STUFF
-const mockAdminUser = {
-    id: "admin_1",
-    email: "test@user.com",
-    passwordHash: bcrypt.hashSync("testpassword", 10),
-    isAdmin: true,
-};
-
 app.post('/api/login', async (req, res) => {
-    const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
 
-    if (email !== mockAdminUser.email) {
-        return res.status(401).json({ message: "Invalid email or password" });
+        const user = await User.findOne({ email });
+        if (!user || !(await user.matchPassword(password))) {
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+
+        const token = jwt.sign(
+            { id: user._id, isAdmin: user.isAdmin },
+            process.env.JWT_SECRET || 'fallback_secret',
+            { expiresIn: '7d' }
+        );
+
+        res.json({
+            id: user._id,
+            email: user.email,
+            isAdmin: user.isAdmin,
+            token: token,
+        });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ message: 'Server error during login' });
     }
-
-    const isMatch = await bcrypt.compare(password, mockAdminUser.passwordHash);
-    if (!isMatch) {
-        return res.status(401).json({ message: "Invalid email or password" });
-    }
-
-    const token = jwt.sign(
-        { id: mockAdminUser.id, isAdmin: mockAdminUser.isAdmin },
-        process.env.JWT_SECRET || 'fallback_secret',
-        { expiresIn: '7d' }
-    );
-
-    res.json({
-        id: mockAdminUser.id,
-        email: mockAdminUser.email,
-        isAdmin: mockAdminUser.isAdmin,
-        token: token,
-    });
 });
 
 app.get('/api/connection', (req, res) => {
