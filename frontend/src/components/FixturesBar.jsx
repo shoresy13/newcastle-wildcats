@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { formatGameTypeLabel, formatTeamName } from '../utils/formatters';
 
 export default function FixturesBar() {
     const [games, setGames] = useState([]);
@@ -111,49 +112,6 @@ export default function FixturesBar() {
     const scrollLeft = () => scrollByDirection('left');
     const scrollRight = () => scrollByDirection('right');
 
-    const formatTeamName = (team) => {
-        if (!team) return '';
-        if (team.shortName && team.shortName.includes('-')) {
-            return team.shortName.replace('-', ' ');
-        }
-        return team.shortName || team.name;
-    };
-
-    const formatGameTypeBarLabel = (type) => {
-        if (!type) return 'GAME';
-
-        if (type.startsWith('Cup Comp North - ')) {
-            const sub = type.replace('Cup Comp North - ', '');
-            const shortSub = sub
-                .replace('Checking ', 'CHK')
-                .replace('Non-Check ', 'N-CHK')
-                .replace("Women's", 'W')
-                .replace(/\s+/g, '');
-            return `N-${shortSub} NORTH`;
-        }
-
-        if (type.startsWith('Cup Comp South - ')) {
-            const sub = type.replace('Cup Comp South - ', '');
-            const shortSub = sub
-                .replace('Checking ', 'CHK')
-                .replace('Non-Check ', 'N-CHK')
-                .replace("Women's", 'W')
-                .replace(/\s+/g, '');
-            return `S-${shortSub} SOUTH`;
-        }
-
-        if (type.startsWith('National Championships - ')) {
-            const sub = type.replace('National Championships - ', '');
-            const shortSub = sub
-                .replace('Checking ', 'CHK ')
-                .replace('Womens ', 'WMS ')
-                .replace('Non-Check ', 'N-CHK ');
-            return `${shortSub.toUpperCase()} NATS`;
-        }
-
-        return type.toUpperCase();
-    };
-
     if (loading || games.length === 0) {
         return (
             <div className="w-full h-[76px] sm:h-[88px] bg-white border-b border-gray-200 flex items-center justify-center">
@@ -221,7 +179,7 @@ export default function FixturesBar() {
                                         const cardContent = (
                                             <>
                                                 <div className="text-[7px] sm:text-[8px] font-bold text-gray-400 group-hover:text-wildcats-blue uppercase tracking-wider truncate whitespace-nowrap mb-0.5 sm:mb-1 transition-colors">
-                                                    {formatGameTypeBarLabel(game.gameType)}
+                                                    {formatGameTypeLabel(game.gameType)}
                                                 </div>
 
                                                 <div className="flex items-center justify-between">
