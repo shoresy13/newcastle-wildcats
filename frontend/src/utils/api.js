@@ -17,9 +17,11 @@ export async function loginUser(credentials) {
         body: JSON.stringify(credentials),
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : {};
+
     if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
+        throw new Error(data.message || `Server returned error status ${response.status}`);
     }
 
     return data;
