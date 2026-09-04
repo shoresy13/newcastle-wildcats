@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
+import { loginUser } from "../utils/api";
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -14,19 +15,7 @@ export default function Login() {
         setLoading(true);
 
         try {
-            const response = await fetch("http://localhost:5000/api/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email, password }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Login failed");
-            }
+            const data = await loginUser({ email, password });
 
             localStorage.setItem("userInfo", JSON.stringify(data));
             window.dispatchEvent(new Event("authChange"));
@@ -62,7 +51,7 @@ export default function Login() {
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full  border rounded-none px-3.5 py-2.5 text-xs placeholder-slate-400 focus:outline-none focus:border-wildcats-red focus:bg-white transition-colors"
+                                className="w-full border rounded-none px-3.5 py-2.5 text-xs placeholder-slate-400 focus:outline-none focus:border-wildcats-red focus:bg-white transition-colors"
                                 placeholder="user@example.com"
                                 required
                             />
