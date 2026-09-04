@@ -12,7 +12,9 @@ import Games from "./pages/Games.jsx";
 import Teams from "./pages/Teams.jsx";
 import Contact from "./pages/Contact.jsx";
 import Login from "./pages/Login.jsx";
+
 import Admin from "./pages/Admin.jsx"
+import AddGame from "./pages/AddGame.jsx";
 
 
 function ScrollToTop() {
@@ -57,6 +59,7 @@ export default function App() {
 
                 <Route element={<ProtectedRoute />}>
                     <Route path="admin" element={<Admin />} />
+                    <Route path="admin/add-game" element={<AddGame />} />
                 </Route>
             </Route>
         </Routes>

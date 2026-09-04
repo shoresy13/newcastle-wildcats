@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 
 import User from './models/User.js';
+import gameRoutes from './routes/gameRoutes.js';
 
 dotenv.config();
 
@@ -44,6 +45,8 @@ app.use(
 );
 
 app.use(express.json());
+
+app.use('/api/games', gameRoutes);
 
 app.post('/api/login', async (req, res) => {
     try {
