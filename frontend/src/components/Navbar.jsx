@@ -29,6 +29,7 @@ export default function Navbar() {
     const handleLogout = () => {
         localStorage.removeItem("userInfo");
         window.dispatchEvent(new Event("authChange"));
+        setOpen(false);
         navigate("/login");
     };
 
@@ -68,6 +69,7 @@ export default function Navbar() {
                         </div>
                     </NavLink>
 
+                    {/* Desktop Navigation */}
                     <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center space-x-4 text-[10px] uppercase tracking-[0.24em] font-sans font-semibold">
                         {links.map((link, index) => (
                             <React.Fragment key={link.name}>
@@ -127,21 +129,23 @@ export default function Navbar() {
                             </a>
                         </div>
 
-                        {isAdmin ? (
-                            <button
-                                onClick={handleLogout}
-                                className="px-3 py-1.5 bg-wildcats-red hover:bg-red-700 text-white text-[10px] font-semibold uppercase tracking-[0.2em] transition-colors duration-150 cursor-pointer"
-                            >
-                                Logout
-                            </button>
-                        ) : (
-                            <NavLink
-                                to="/login"
-                                className="px-3 py-1.5 bg-wildcats-red hover:bg-red-700 text-white text-[10px] font-semibold uppercase tracking-[0.2em] transition-colors duration-150"
-                            >
-                                Login
-                            </NavLink>
-                        )}
+                        <div className="hidden lg:block">
+                            {isAdmin ? (
+                                <button
+                                    onClick={handleLogout}
+                                    className="px-3 py-1.5 bg-wildcats-red hover:bg-red-700 text-white text-[10px] font-semibold uppercase tracking-[0.2em] transition-colors duration-150 cursor-pointer"
+                                >
+                                    Logout
+                                </button>
+                            ) : (
+                                <NavLink
+                                    to="/login"
+                                    className="px-3 py-1.5 bg-wildcats-red hover:bg-red-700 text-white text-[10px] font-semibold uppercase tracking-[0.2em] transition-colors duration-150"
+                                >
+                                    Login
+                                </NavLink>
+                            )}
+                        </div>
 
                         <div className="flex items-center lg:hidden ml-0.5">
                             <button
@@ -171,28 +175,49 @@ export default function Navbar() {
                 </div>
 
                 {open && (
-                    <div className="lg:hidden border-t border-white/10 bg-wildcats-blue px-6 py-4 flex flex-col space-y-1 shadow-2xl font-sans">
-                        {links.map((link) => (
-                            <NavLink
-                                key={link.name}
-                                to={link.path}
-                                onClick={() => setOpen(false)}
-                                className={({ isActive }) =>
-                                    `relative flex flex-col py-2.5 transition-colors items-start w-fit ${
-                                        isActive ? "text-white font-semibold" : "text-white/70 hover:text-white"
-                                    }`
-                                }
-                            >
-                                {({ isActive }) => (
-                                    <>
-                                        <span className="text-[11px] uppercase tracking-[0.2em]">{link.name}</span>
-                                        {isActive && (
-                                            <span className="h-0.5 w-full bg-wildcats-red mt-1 rounded-full" />
-                                        )}
-                                    </>
-                                )}
-                            </NavLink>
-                        ))}
+                    <div className="lg:hidden border-t border-white/10 bg-wildcats-blue px-6 py-4 flex flex-col space-y-3 shadow-2xl font-sans">
+                        <div className="flex flex-col space-y-1">
+                            {links.map((link) => (
+                                <NavLink
+                                    key={link.name}
+                                    to={link.path}
+                                    onClick={() => setOpen(false)}
+                                    className={({ isActive }) =>
+                                        `relative flex flex-col py-2 transition-colors items-start w-fit ${
+                                            isActive ? "text-white font-semibold" : "text-white/70 hover:text-white"
+                                        }`
+                                    }
+                                >
+                                    {({ isActive }) => (
+                                        <>
+                                            <span className="text-[11px] uppercase tracking-[0.2em]">{link.name}</span>
+                                            {isActive && (
+                                                <span className="h-0.5 w-full bg-wildcats-red mt-1 rounded-full" />
+                                            )}
+                                        </>
+                                    )}
+                                </NavLink>
+                            ))}
+                        </div>
+
+                        <div className="pt-2 border-t border-white/10 w-full">
+                            {isAdmin ? (
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full text-center py-2.5 bg-wildcats-red hover:bg-red-700 text-white text-[11px] font-semibold uppercase tracking-[0.2em] transition-colors duration-150 cursor-pointer"
+                                >
+                                    Logout
+                                </button>
+                            ) : (
+                                <NavLink
+                                    to="/login"
+                                    onClick={() => setOpen(false)}
+                                    className="block w-full text-center py-2.5 bg-wildcats-red hover:bg-red-700 text-white text-[11px] font-semibold uppercase tracking-[0.2em] transition-colors duration-150"
+                                >
+                                    Login
+                                </NavLink>
+                            )}
+                        </div>
                     </div>
                 )}
             </nav>
