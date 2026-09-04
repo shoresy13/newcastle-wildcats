@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { TEAMS } from '../utils/teams';
 import { GAME_TYPES } from '../utils/gameTypes';
 
+const SEASONS = ["2026/27", "2025/26"];
+
 function TeamSelectDropdown({ label, labelColorClass, selectedIndex, onSelect }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -72,10 +74,12 @@ function TeamSelectDropdown({ label, labelColorClass, selectedIndex, onSelect })
     );
 }
 
-export default function AddGame() {
+export default function GameManager() {
     const [games, setGames] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState({ text: '', isError: false });
+
+    const [selectedSeasonFilter, setSelectedSeasonFilter] = useState(SEASONS[0]);
 
     const [homeClubIdx, setHomeClubIdx] = useState(0);
     const [homeTeamLetter, setHomeTeamLetter] = useState(TEAMS[0].teams[0]);
@@ -86,15 +90,20 @@ export default function AddGame() {
     const [formData, setFormData] = useState({
         date: '',
         time: '',
+        season: SEASONS[0],
         gameType: GAME_TYPES[0],
         status: 'UPCOMING',
         venue: 'Whitley Bay Ice Rink',
+        homeScore: 0,
+        awayScore: 0,
     });
 
     const [editingGameId, setEditingGameId] = useState(null);
     const [editFormData, setEditFormData] = useState({});
 
     const API_BASE = (import.meta.env.VITE_API_URL || 'https://newcastle-wildcats.onrender.com').replace(/\/$/, '');
+
+    const isFormPastDate = formData.date ? new Date(`${formData.date}T${formData.time || '00:00'}`) < new Date() : false;
 
     const groupedGameTypes = GAME_TYPES.reduce((acc, type) => {
         let category = 'General';
@@ -106,6 +115,13 @@ export default function AddGame() {
         acc[category].push(type);
         return acc;
     }, {});
+
+    const formatGameTypeLabel = (type) => {
+        if (type.includes(' - ')) {
+            return type.split(' - ').slice(1).join(' - ');
+        }
+        return type;
+    };
 
     const fetchGames = async () => {
         try {
@@ -131,7 +147,7 @@ export default function AddGame() {
 
     const handleAwayClubChange = (idx) => {
         setAwayClubIdx(idx);
-        setAwayTeamLetter(TEAMS[idx].teams[0]);
+        setAwayTeamLetter(TEAMS[1].teams[0]);
     };
 
     const handleSubmit = async (e) => {
@@ -144,22 +160,23 @@ export default function AddGame() {
 
         const payload = {
             date: combinedDateTime.toISOString(),
+            season: formData.season,
             gameType: formData.gameType,
-            status: formData.status,
+            status: isFormPastDate ? 'END' : formData.status,
             venue: formData.venue,
             homeTeam: {
                 name: `${selectedHome.name} ${homeTeamLetter}`,
                 shortName: `${selectedHome.shortName}-${homeTeamLetter}`,
                 logo: selectedHome.logo,
                 teamLetter: homeTeamLetter,
-                score: 0
+                score: isFormPastDate ? Number(formData.homeScore) || 0 : 0
             },
             awayTeam: {
                 name: `${selectedAway.name} ${awayTeamLetter}`,
                 shortName: `${selectedAway.shortName}-${awayTeamLetter}`,
                 logo: selectedAway.logo,
                 teamLetter: awayTeamLetter,
-                score: 0
+                score: isFormPastDate ? Number(formData.awayScore) || 0 : 0
             }
         };
 
@@ -179,6 +196,7 @@ export default function AddGame() {
 
             setMessage({ text: 'Game successfully added!', isError: false });
             fetchGames();
+            setFormData(prev => ({ ...prev, homeScore: 0, awayScore: 0 }));
         } catch (err) {
             setMessage({ text: err.message, isError: true });
         }
@@ -233,6 +251,7 @@ export default function AddGame() {
         setEditFormData({
             date: localDate,
             time: localTime,
+            season: game.season || SEASONS[0],
             venue: game.venue,
             gameType: game.gameType,
             status: game.status === 'LIVE' ? 'UPCOMING' : game.status,
@@ -252,6 +271,7 @@ export default function AddGame() {
 
         handleUpdateGame(game._id, {
             date: combinedDateTime.toISOString(),
+            season: editFormData.season,
             venue: editFormData.venue,
             gameType: editFormData.gameType,
             status: editFormData.status,
@@ -260,17 +280,21 @@ export default function AddGame() {
                 shortName: `${selectedHome.shortName}-${editFormData.homeTeamLetter}`,
                 logo: selectedHome.logo,
                 teamLetter: editFormData.homeTeamLetter,
-                score: Number(editFormData.homeScore)
+                score: Number(editFormData.homeScore) || 0
             },
             awayTeam: {
                 name: `${selectedAway.name} ${editFormData.awayTeamLetter}`,
                 shortName: `${selectedAway.shortName}-${editFormData.awayTeamLetter}`,
                 logo: selectedAway.logo,
                 teamLetter: editFormData.awayTeamLetter,
-                score: Number(editFormData.awayScore)
+                score: Number(editFormData.awayScore) || 0
             }
         });
     };
+
+    const filteredGames = games
+        .filter(g => (g.season || '2026/27') === selectedSeasonFilter)
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
 
     return (
         <div className="max-w-5xl mx-auto p-4 sm:p-6 font-sans">
@@ -290,7 +314,19 @@ export default function AddGame() {
                 </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold uppercase text-gray-600 mb-1">Season</label>
+                            <select
+                                value={formData.season}
+                                onChange={(e) => setFormData({ ...formData, season: e.target.value })}
+                                className="w-full border p-2 text-sm bg-white font-bold outline-none focus:border-wildcats-blue"
+                            >
+                                {SEASONS.map((s) => (
+                                    <option key={s} value={s}>{s}</option>
+                                ))}
+                            </select>
+                        </div>
                         <div>
                             <label className="block text-xs font-bold uppercase text-gray-600 mb-1">Date</label>
                             <input
@@ -322,7 +358,7 @@ export default function AddGame() {
                                     <optgroup key={category} label={category}>
                                         {options.map((type) => (
                                             <option key={type} value={type}>
-                                                {type}
+                                                {formatGameTypeLabel(type)}
                                             </option>
                                         ))}
                                     </optgroup>
@@ -337,7 +373,7 @@ export default function AddGame() {
                                 value={formData.venue}
                                 onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
                                 placeholder="Whitley Bay Ice Rink"
-                                className="w-full border p-2 text-sm outline-none focus:border-wildcats-blue"
+                                className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-wildcats-blue"
                             />
                         </div>
                     </div>
@@ -351,19 +387,34 @@ export default function AddGame() {
                                 onSelect={handleHomeClubChange}
                             />
 
-                            <div>
-                                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Team</label>
-                                <select
-                                    value={homeTeamLetter}
-                                    onChange={(e) => setHomeTeamLetter(e.target.value)}
-                                    className="w-full border border-gray-300 p-2 text-sm bg-white font-bold"
-                                >
-                                    {TEAMS[homeClubIdx].teams.map((letter) => (
-                                        <option key={letter} value={letter}>
-                                            {letter}
-                                        </option>
-                                    ))}
-                                </select>
+                            <div className="flex gap-3">
+                                <div className="flex-1">
+                                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Team</label>
+                                    <select
+                                        value={homeTeamLetter}
+                                        onChange={(e) => setHomeTeamLetter(e.target.value)}
+                                        className="w-full border border-gray-300 p-2 text-sm bg-white font-bold"
+                                    >
+                                        {TEAMS[homeClubIdx].teams.map((letter) => (
+                                            <option key={letter} value={letter}>
+                                                {letter}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {isFormPastDate && (
+                                    <div className="w-24">
+                                        <label className="block text-[11px] font-bold text-wildcats-red uppercase mb-1">Score</label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            value={formData.homeScore}
+                                            onChange={(e) => setFormData({ ...formData, homeScore: e.target.value })}
+                                            className="w-full border border-gray-300 bg-white p-2 text-center text-sm font-bold outline-none focus:border-wildcats-blue"
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -375,19 +426,34 @@ export default function AddGame() {
                                 onSelect={handleAwayClubChange}
                             />
 
-                            <div>
-                                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Team</label>
-                                <select
-                                    value={awayTeamLetter}
-                                    onChange={(e) => setAwayTeamLetter(e.target.value)}
-                                    className="w-full border border-gray-300 p-2 text-sm bg-white font-bold"
-                                >
-                                    {TEAMS[awayClubIdx].teams.map((letter) => (
-                                        <option key={letter} value={letter}>
-                                            {letter}
-                                        </option>
-                                    ))}
-                                </select>
+                            <div className="flex gap-3">
+                                <div className="flex-1">
+                                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Team</label>
+                                    <select
+                                        value={awayTeamLetter}
+                                        onChange={(e) => setAwayTeamLetter(e.target.value)}
+                                        className="w-full border border-gray-300 p-2 text-sm bg-white font-bold"
+                                    >
+                                        {TEAMS[awayClubIdx].teams.map((letter) => (
+                                            <option key={letter} value={letter}>
+                                                {letter}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {isFormPastDate && (
+                                    <div className="w-24">
+                                        <label className="block text-[11px] font-bold text-wildcats-blue uppercase mb-1">Score</label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            value={formData.awayScore}
+                                            onChange={(e) => setFormData({ ...formData, awayScore: e.target.value })}
+                                            className="w-full border border-gray-300 bg-white p-2 text-center text-sm font-bold outline-none focus:border-wildcats-blue"
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -402,16 +468,38 @@ export default function AddGame() {
             </div>
 
             <div className="bg-white border border-gray-200 shadow-md p-6">
-                <h2 className="text-lg font-bold font-wildcats text-gray-800 uppercase tracking-wide border-b border-gray-200 pb-2 mb-4">
-                    Existing Fixtures
-                </h2>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-gray-200 pb-3 mb-4 gap-3">
+                    <h2 className="text-lg font-bold font-wildcats text-gray-800 uppercase tracking-wide">
+                        Existing Fixtures
+                    </h2>
+
+                    <div className="flex flex-wrap gap-1 bg-gray-100 p-1 border border-gray-200">
+                        {SEASONS.map((season) => (
+                            <button
+                                key={season}
+                                type="button"
+                                onClick={() => setSelectedSeasonFilter(season)}
+                                className={`px-3 py-1 text-xs font-bold uppercase cursor-pointer transition-colors ${
+                                    selectedSeasonFilter === season
+                                        ? 'bg-wildcats-blue text-white shadow-xs'
+                                        : 'text-gray-600 hover:text-gray-900'
+                                }`}
+                            >
+                                {season}
+                            </button>
+                        ))}
+                    </div>
+                </div>
 
                 {loading ? (
                     <p className="text-sm text-gray-500">Loading scheduled games...</p>
+                ) : filteredGames.length === 0 ? (
+                    <p className="text-sm text-gray-500 italic py-4 text-center">No fixtures found for the {selectedSeasonFilter} season.</p>
                 ) : (
                     <div className="space-y-4">
-                        {games.map((game) => {
+                        {filteredGames.map((game) => {
                             const isEditing = editingGameId === game._id;
+                            const isPastGame = new Date(editFormData.date || game.date) < new Date();
 
                             return (
                                 <div
@@ -422,7 +510,17 @@ export default function AddGame() {
                                 >
                                     {isEditing ? (
                                         <div className="space-y-4">
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+                                                <div>
+                                                    <label className="block text-[10px] font-bold uppercase text-gray-500 mb-0.5">Season</label>
+                                                    <select
+                                                        value={editFormData.season}
+                                                        onChange={(e) => setEditFormData({ ...editFormData, season: e.target.value })}
+                                                        className="w-full border p-1.5 text-xs bg-white font-semibold"
+                                                    >
+                                                        {SEASONS.map(s => <option key={s} value={s}>{s}</option>)}
+                                                    </select>
+                                                </div>
                                                 <div>
                                                     <label className="block text-[10px] font-bold uppercase text-gray-500 mb-0.5">Date</label>
                                                     <input
@@ -461,7 +559,7 @@ export default function AddGame() {
                                                             <optgroup key={category} label={category}>
                                                                 {options.map((type) => (
                                                                     <option key={type} value={type}>
-                                                                        {type}
+                                                                        {formatGameTypeLabel(type)}
                                                                     </option>
                                                                 ))}
                                                             </optgroup>
@@ -484,17 +582,30 @@ export default function AddGame() {
                                                             });
                                                         }}
                                                     />
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-[10px] font-bold text-gray-500 uppercase">Team:</span>
-                                                        <select
-                                                            value={editFormData.homeTeamLetter}
-                                                            onChange={(e) => setEditFormData({ ...editFormData, homeTeamLetter: e.target.value })}
-                                                            className="border p-1 text-xs font-bold bg-white rounded"
-                                                        >
-                                                            {TEAMS[editFormData.homeClubIdx]?.teams.map((l) => (
-                                                                <option key={l} value={l}>{l}</option>
-                                                            ))}
-                                                        </select>
+                                                    <div className="flex gap-2">
+                                                        <div className="flex-1">
+                                                            <span className="text-[10px] font-bold text-gray-500 uppercase">Team:</span>
+                                                            <select
+                                                                value={editFormData.homeTeamLetter}
+                                                                onChange={(e) => setEditFormData({ ...editFormData, homeTeamLetter: e.target.value })}
+                                                                className="w-full border p-1 text-xs font-bold bg-white rounded"
+                                                            >
+                                                                {TEAMS[editFormData.homeClubIdx]?.teams.map((l) => (
+                                                                    <option key={l} value={l}>{l}</option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                        {isPastGame && (
+                                                            <div className="w-20">
+                                                                <span className="text-[10px] font-bold text-wildcats-red uppercase">Score:</span>
+                                                                <input
+                                                                    type="number"
+                                                                    value={editFormData.homeScore}
+                                                                    onChange={(e) => setEditFormData({ ...editFormData, homeScore: e.target.value })}
+                                                                    className="w-full border p-1 text-center text-xs font-bold bg-white rounded"
+                                                                />
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
 
@@ -511,46 +622,41 @@ export default function AddGame() {
                                                             });
                                                         }}
                                                     />
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-[10px] font-bold text-gray-500 uppercase">Team:</span>
-                                                        <select
-                                                            value={editFormData.awayTeamLetter}
-                                                            onChange={(e) => setEditFormData({ ...editFormData, awayTeamLetter: e.target.value })}
-                                                            className="border p-1 text-xs font-bold bg-white rounded"
-                                                        >
-                                                            {TEAMS[editFormData.awayClubIdx]?.teams.map((l) => (
-                                                                <option key={l} value={l}>{l}</option>
-                                                            ))}
-                                                        </select>
+                                                    <div className="flex gap-2">
+                                                        <div className="flex-1">
+                                                            <span className="text-[10px] font-bold text-gray-500 uppercase">Team:</span>
+                                                            <select
+                                                                value={editFormData.awayTeamLetter}
+                                                                onChange={(e) => setEditFormData({ ...editFormData, awayTeamLetter: e.target.value })}
+                                                                className="w-full border p-1 text-xs font-bold bg-white rounded"
+                                                            >
+                                                                {TEAMS[editFormData.awayClubIdx]?.teams.map((l) => (
+                                                                    <option key={l} value={l}>{l}</option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                        {isPastGame && (
+                                                            <div className="w-20">
+                                                                <span className="text-[10px] font-bold text-wildcats-blue uppercase">Score:</span>
+                                                                <input
+                                                                    type="number"
+                                                                    value={editFormData.awayScore}
+                                                                    onChange={(e) => setEditFormData({ ...editFormData, awayScore: e.target.value })}
+                                                                    className="w-full border p-1 text-center text-xs font-bold bg-white rounded"
+                                                                />
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div className="flex justify-between items-center bg-white p-3 border border-gray-200 rounded">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="flex items-center gap-1.5">
-                                                        <span className="text-xs font-bold text-gray-700">Home Score</span>
-                                                        <input
-                                                            type="number"
-                                                            value={editFormData.homeScore}
-                                                            onChange={(e) => setEditFormData({ ...editFormData, homeScore: e.target.value })}
-                                                            className="w-12 border p-1 text-center text-xs font-bold bg-gray-50"
-                                                        />
-                                                    </div>
-                                                    <span className="text-xs font-bold text-gray-300">:</span>
-                                                    <div className="flex items-center gap-1.5">
-                                                        <input
-                                                            type="number"
-                                                            value={editFormData.awayScore}
-                                                            onChange={(e) => setEditFormData({ ...editFormData, awayScore: e.target.value })}
-                                                            className="w-12 border p-1 text-center text-xs font-bold bg-gray-50"
-                                                        />
-                                                        <span className="text-xs font-bold text-gray-700">Away Score</span>
-                                                    </div>
-                                                </div>
+                                                <span className="text-xs text-gray-500 italic">
+                                                    {isPastGame ? 'Past game editing mode' : 'Upcoming game mode'}
+                                                </span>
 
                                                 <select
-                                                    value={editFormData.status === 'LIVE' ? 'UPCOMING' : editFormData.status}
+                                                    value={editFormData.status}
                                                     onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
                                                     className="border p-1 text-xs font-bold uppercase bg-gray-50"
                                                 >
@@ -605,23 +711,17 @@ export default function AddGame() {
                                                             {game.homeTeam.teamLetter}
                                                         </div>
                                                     )}
-                                                    <input
-                                                        type="number"
-                                                        defaultValue={game.homeTeam.score}
-                                                        onBlur={(e) => handleUpdateGame(game._id, { 'homeTeam.score': Number(e.target.value) })}
-                                                        className="w-12 border rounded p-1 text-center font-bold text-sm focus:bg-white focus:border-wildcats-blue outline-none"
-                                                    />
+                                                    <span className="w-6 text-center font-bold text-sm text-gray-800">
+                                                        {game.homeTeam.score}
+                                                    </span>
                                                 </div>
 
                                                 <span className="text-xs font-bold text-gray-300">:</span>
 
                                                 <div className="flex items-center gap-2">
-                                                    <input
-                                                        type="number"
-                                                        defaultValue={game.awayTeam.score}
-                                                        onBlur={(e) => handleUpdateGame(game._id, { 'awayTeam.score': Number(e.target.value) })}
-                                                        className="w-12 border rounded p-1 text-center font-bold text-sm focus:bg-white focus:border-wildcats-blue outline-none"
-                                                    />
+                                                    <span className="w-6 text-center font-bold text-sm text-gray-800">
+                                                        {game.awayTeam.score}
+                                                    </span>
                                                     {game.awayTeam.logo ? (
                                                         <img src={game.awayTeam.logo} alt="" className="w-6 h-6 object-contain" />
                                                     ) : (
@@ -633,17 +733,11 @@ export default function AddGame() {
 
                                                 <div className="h-6 w-px bg-gray-200 hidden sm:block" />
 
-                                                <select
-                                                    defaultValue={game.status === 'LIVE' || game.status === 'FINAL' ? 'END' : game.status}
-                                                    onChange={(e) => handleUpdateGame(game._id, { status: e.target.value })}
-                                                    className={`border border-gray-200 rounded p-1.5 text-xs font-bold uppercase outline-none cursor-pointer ${
-                                                        game.status === 'END' || game.status === 'FINAL' ? 'bg-gray-100 text-gray-600' :
-                                                            'bg-blue-50 text-wildcats-blue border-blue-200'
-                                                    }`}
-                                                >
-                                                    <option value="UPCOMING">UPCOMING</option>
-                                                    <option value="END">END</option>
-                                                </select>
+                                                <span className={`px-2 py-1 text-xs font-bold uppercase rounded ${
+                                                    game.status === 'END' || game.status === 'FINAL' ? 'bg-gray-100 text-gray-600' : 'bg-blue-50 text-wildcats-blue'
+                                                }`}>
+                                                    {game.status === 'FINAL' ? 'END' : game.status}
+                                                </span>
 
                                                 <div className="h-6 w-px bg-gray-200" />
 

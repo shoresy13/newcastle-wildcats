@@ -2,8 +2,9 @@ import mongoose from 'mongoose';
 
 const gameSchema = new mongoose.Schema({
     date: { type: Date, required: true },
+    season: { type: String, required: true, default: '2025/26' },
     gameType: { type: String, required: true },
-    status: { type: String, enum: ['UPCOMING', 'FINAL'], default: 'UPCOMING' },
+    status: { type: String, enum: ['UPCOMING', 'END'], default: 'UPCOMING' },
     venue: { type: String, default: '' },
     homeTeam: {
         name: { type: String, required: true },

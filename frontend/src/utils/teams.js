@@ -84,10 +84,17 @@ export const TEAMS = [
         teams: ["A", "B"]
     },
     {
+        name: "North East Nomads",
+        shortName: "EIH",
+        logo: "https://buiha.org.uk/assets/img/icon/md/eih.png",
+        teams: ["A", "B"]
+    },
+
+    {
         name: "Northumbria Kings",
         shortName: "NUK",
         logo: "https://buiha.org.uk/assets/img/icon/md/northumbria.png",
-        teams: ["A", "B", "C", "D"]
+        teams: ["A", "B", "C", "D", "Select"]
     },
     {
         name: "Nottingham Mavericks",
