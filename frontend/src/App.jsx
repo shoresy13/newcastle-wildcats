@@ -4,12 +4,15 @@ import { checkConnection } from "./utils/api";
 
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 import Home from "./pages/Home.jsx";
 import News from "./pages/News.jsx";
 import Games from "./pages/Games.jsx";
 import Teams from "./pages/Teams.jsx";
 import Contact from "./pages/Contact.jsx";
+import Login from "./pages/Login.jsx";
+import Admin from "./pages/Admin.jsx"
 
 
 function ScrollToTop() {
@@ -50,6 +53,11 @@ export default function App() {
                 <Route path="games" element={<Games />} />
                 <Route path="teams" element={<Teams />} />
                 <Route path="contact" element={<Contact />} />
+                <Route path="login" element={<Login />} />
+
+                <Route element={<ProtectedRoute />}>
+                    <Route path="admin" element={<Admin />} />
+                </Route>
             </Route>
         </Routes>
     );

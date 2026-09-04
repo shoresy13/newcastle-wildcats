@@ -1,17 +1,48 @@
-import React, { useState } from "react";
-import { NavLink } from "react-router";
+import React, { useState, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router";
 import wildcatsLogo from "../assets/wildcats-logo.png";
 
 export default function Navbar() {
     const [open, setOpen] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const navigate = useNavigate();
 
-    const links = [
+    useEffect(() => {
+        const checkAuth = () => {
+            const userInfo = localStorage.getItem("userInfo")
+                ? JSON.parse(localStorage.getItem("userInfo"))
+                : null;
+            setIsAdmin(Boolean(userInfo && userInfo.token && userInfo.isAdmin));
+        };
+
+        checkAuth();
+
+        window.addEventListener("storage", checkAuth);
+        window.addEventListener("authChange", checkAuth);
+
+        return () => {
+            window.removeEventListener("storage", checkAuth);
+            window.removeEventListener("authChange", checkAuth);
+        };
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem("userInfo");
+        window.dispatchEvent(new Event("authChange"));
+        navigate("/login");
+    };
+
+    const baseLinks = [
         { name: "Home", path: "/" },
         { name: "News", path: "/news" },
         { name: "Games", path: "/games" },
         { name: "Teams", path: "/teams" },
         { name: "Contact", path: "/contact" },
     ];
+
+    const links = isAdmin
+        ? [...baseLinks, { name: "Admin", path: "/admin" }]
+        : baseLinks;
 
     const socialLinks = {
         buiha: "https://buiha.org.uk/club/newcastle",
@@ -96,11 +127,27 @@ export default function Navbar() {
                             </a>
                         </div>
 
+                        {isAdmin ? (
+                            <button
+                                onClick={handleLogout}
+                                className="px-3 py-1.5 bg-wildcats-red hover:bg-red-700 text-white text-[10px] font-semibold uppercase tracking-[0.2em] transition-colors duration-150 cursor-pointer"
+                            >
+                                Logout
+                            </button>
+                        ) : (
+                            <NavLink
+                                to="/login"
+                                className="px-3 py-1.5 bg-wildcats-red hover:bg-red-700 text-white text-[10px] font-semibold uppercase tracking-[0.2em] transition-colors duration-150"
+                            >
+                                Login
+                            </NavLink>
+                        )}
+
                         <div className="flex items-center lg:hidden ml-0.5">
                             <button
                                 type="button"
                                 aria-label="Toggle menu"
-                                className="relative flex flex-col justify-center items-center w-9 h-9 sm:w-10 sm:h-10 border border-white/20 rounded bg-white/5 hover:bg-white/10 p-2 focus:outline-none transition-colors"
+                                className="relative flex flex-col justify-center items-center w-9 h-9 sm:w-10 sm:h-10 border border-white/20 rounded-none bg-white/5 hover:bg-white/10 p-2 focus:outline-none transition-colors"
                                 onClick={() => setOpen(!open)}
                             >
                                 <span
