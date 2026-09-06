@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { TEAMS } from '../utils/teams';
 import { GAME_TYPES } from '../utils/gameTypes';
+import { formatGameTypeLabel } from '../utils/formatters';
 
 const SEASONS = ["2026/27", "2025/26"];
 
@@ -30,23 +31,23 @@ function TeamSelectDropdown({ label, labelColorClass, selectedIndex, onSelect })
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full border p-2 text-sm bg-white flex items-center justify-between shadow-sm cursor-pointer focus:outline-none focus:border-wildcats-blue"
+                className="w-full border border-gray-300 p-2 text-sm bg-white flex items-center justify-between shadow-sm cursor-pointer focus:outline-none focus:border-wildcats-blue min-w-0"
             >
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2.5 min-w-0 overflow-hidden">
                     {selectedTeam?.logo ? (
                         <img src={selectedTeam.logo} alt="" className="w-6 h-6 object-contain shrink-0" />
                     ) : (
                         <div className="w-6 h-6 bg-gray-200 rounded-full shrink-0" />
                     )}
-                    <span className="font-semibold text-gray-800">
-                        {selectedTeam?.name} ({selectedTeam?.shortName})
+                    <span className="font-semibold text-gray-800 truncate text-left">
+                        {selectedTeam?.name} <span className="hidden sm:inline">({selectedTeam?.shortName})</span>
                     </span>
                 </div>
-                <span className="text-xs text-gray-400">▼</span>
+                <span className="text-xs text-gray-400 shrink-0 ml-2">▼</span>
             </button>
 
             {isOpen && (
-                <div className="absolute z-30 mt-1 w-full bg-white border shadow-lg max-h-56 overflow-y-auto divide-y divide-gray-100">
+                <div className="absolute z-30 mt-1 w-full bg-white border border-gray-300 shadow-lg max-h-56 overflow-y-auto divide-y divide-gray-100">
                     {TEAMS.map((team, idx) => (
                         <div
                             key={team.shortName}
@@ -63,7 +64,7 @@ function TeamSelectDropdown({ label, labelColorClass, selectedIndex, onSelect })
                             ) : (
                                 <div className="w-6 h-6 bg-gray-200 rounded-full shrink-0" />
                             )}
-                            <span className="text-gray-800">
+                            <span className="text-gray-800 truncate">
                                 {team.name} ({team.shortName})
                             </span>
                         </div>
@@ -117,13 +118,6 @@ export default function GameManager() {
         return acc;
     }, {});
 
-    const formatGameTypeLabel = (type) => {
-        if (type.includes(' - ')) {
-            return type.split(' - ').slice(1).join(' - ');
-        }
-        return type;
-    };
-
     const fetchGames = async () => {
         try {
             const res = await fetch(`${API_BASE}/api/games`);
@@ -140,6 +134,15 @@ export default function GameManager() {
     useEffect(() => {
         fetchGames();
     }, []);
+
+    const getFullTeamName = (teamObj) => {
+        if (!teamObj) return '';
+        const matchedClub = TEAMS.find(t => teamObj.name.includes(t.name) || teamObj.shortName?.includes(t.shortName));
+        if (matchedClub) {
+            return `${matchedClub.name} ${teamObj.teamLetter || ''}`.trim();
+        }
+        return teamObj.name;
+    };
 
     const handleHomeClubChange = (idx) => {
         setHomeClubIdx(idx);
@@ -302,29 +305,29 @@ export default function GameManager() {
 
     return (
         <div className="max-w-5xl mx-auto p-4 sm:p-6 font-sans">
-            <h1 className="text-2xl font-bold font-wildcats text-wildcats-blue uppercase mb-6">
+            <h1 className="text-xl sm:text-2xl font-bold font-wildcats text-wildcats-blue uppercase mb-6 text-center sm:text-left">
                 Game Manager
             </h1>
 
             {message.text && (
-                <div className={`p-3 mb-6 text-sm font-semibold ${message.isError ? 'bg-red-100 text-red-700 border border-red-300' : 'bg-green-100 text-green-700 border border-green-300'}`}>
+                <div className={`p-3 mb-6 text-sm font-semibold text-center sm:text-left ${message.isError ? 'bg-red-100 text-red-700 border border-red-300' : 'bg-green-100 text-green-700 border border-green-300'}`}>
                     {message.text}
                 </div>
             )}
 
-            <div className="bg-white border border-gray-200 shadow-md p-6 mb-10">
-                <h2 className="text-lg font-bold font-wildcats text-gray-800 uppercase tracking-wide border-b border-gray-200 pb-2 mb-4">
+            <div className="bg-white border border-gray-200 shadow-md p-4 sm:p-6 mb-8 sm:mb-10">
+                <h2 className="text-base sm:text-lg font-bold font-wildcats text-gray-800 uppercase tracking-wide border-b border-gray-200 pb-2 mb-4">
                     New Game Details
                 </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         <div>
                             <label className="block text-xs font-bold uppercase text-gray-600 mb-1">Season</label>
                             <select
                                 value={formData.season}
                                 onChange={(e) => setFormData({ ...formData, season: e.target.value })}
-                                className="w-full border p-2 text-sm bg-white font-bold outline-none focus:border-wildcats-blue"
+                                className="w-full border border-gray-300 p-2 text-sm bg-white font-bold outline-none focus:border-wildcats-blue"
                             >
                                 {SEASONS.map((s) => (
                                     <option key={s} value={s}>{s}</option>
@@ -338,7 +341,7 @@ export default function GameManager() {
                                 required
                                 value={formData.date}
                                 onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                className="w-full border p-2 text-sm outline-none focus:border-wildcats-blue"
+                                className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-wildcats-blue"
                             />
                         </div>
                         <div>
@@ -348,7 +351,7 @@ export default function GameManager() {
                                 required
                                 value={formData.time}
                                 onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                                className="w-full border p-2 text-sm outline-none focus:border-wildcats-blue"
+                                className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-wildcats-blue"
                             />
                         </div>
                         <div>
@@ -356,7 +359,7 @@ export default function GameManager() {
                             <select
                                 value={formData.gameType}
                                 onChange={(e) => setFormData({ ...formData, gameType: e.target.value })}
-                                className="w-full border p-2 text-sm outline-none focus:border-wildcats-blue truncate"
+                                className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-wildcats-blue truncate"
                             >
                                 {Object.entries(groupedGameTypes).map(([category, options]) => (
                                     <optgroup key={category} label={category}>
@@ -392,7 +395,7 @@ export default function GameManager() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-4 border border-gray-200">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 bg-gray-50 p-4 border border-gray-200">
                         <div className="space-y-3">
                             <TeamSelectDropdown
                                 label="Home Team"
@@ -401,13 +404,13 @@ export default function GameManager() {
                                 onSelect={handleHomeClubChange}
                             />
 
-                            <div className="flex gap-3">
+                            <div className="flex flex-row gap-3">
                                 <div className="flex-1">
-                                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Team</label>
+                                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Select Team</label>
                                     <select
                                         value={homeTeamLetter}
                                         onChange={(e) => setHomeTeamLetter(e.target.value)}
-                                        className="w-full border border-gray-300 p-2 text-sm bg-white font-bold"
+                                        className="w-full border border-gray-300 p-2 text-sm bg-white font-bold outline-none focus:border-wildcats-blue"
                                     >
                                         {TEAMS[homeClubIdx].teams.map((letter) => (
                                             <option key={letter} value={letter}>
@@ -418,7 +421,7 @@ export default function GameManager() {
                                 </div>
 
                                 {isFormPastDate && (
-                                    <div className="w-24">
+                                    <div className="w-20 sm:w-24 shrink-0">
                                         <label className="block text-[11px] font-bold text-wildcats-red uppercase mb-1">Score</label>
                                         <input
                                             type="number"
@@ -432,7 +435,7 @@ export default function GameManager() {
                             </div>
                         </div>
 
-                        <div className="space-y-3">
+                        <div className="space-y-3 mt-4 lg:mt-0">
                             <TeamSelectDropdown
                                 label="Away Team"
                                 labelColorClass="text-wildcats-blue"
@@ -440,13 +443,13 @@ export default function GameManager() {
                                 onSelect={handleAwayClubChange}
                             />
 
-                            <div className="flex gap-3">
+                            <div className="flex flex-row gap-3">
                                 <div className="flex-1">
-                                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Team</label>
+                                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Select Team</label>
                                     <select
                                         value={awayTeamLetter}
                                         onChange={(e) => setAwayTeamLetter(e.target.value)}
-                                        className="w-full border border-gray-300 p-2 text-sm bg-white font-bold"
+                                        className="w-full border border-gray-300 p-2 text-sm bg-white font-bold outline-none focus:border-wildcats-blue"
                                     >
                                         {TEAMS[awayClubIdx].teams.map((letter) => (
                                             <option key={letter} value={letter}>
@@ -457,7 +460,7 @@ export default function GameManager() {
                                 </div>
 
                                 {isFormPastDate && (
-                                    <div className="w-24">
+                                    <div className="w-20 sm:w-24 shrink-0">
                                         <label className="block text-[11px] font-bold text-wildcats-blue uppercase mb-1">Score</label>
                                         <input
                                             type="number"
@@ -474,26 +477,26 @@ export default function GameManager() {
 
                     <button
                         type="submit"
-                        className="w-full bg-wildcats-red hover:bg-red-700 text-white font-bold font-wildcats py-2.5 uppercase tracking-wider text-xs transition-colors cursor-pointer"
+                        className="w-full bg-wildcats-red hover:bg-red-700 text-white font-bold font-wildcats py-3 sm:py-2.5 uppercase tracking-wider text-xs transition-colors cursor-pointer"
                     >
                         Save Game
                     </button>
                 </form>
             </div>
 
-            <div className="bg-white border border-gray-200 shadow-md p-6">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-gray-200 pb-3 mb-4 gap-3">
-                    <h2 className="text-lg font-bold font-wildcats text-gray-800 uppercase tracking-wide">
+            <div className="bg-white border border-gray-200 shadow-md p-4 sm:p-6">
+                <div className="flex items-center justify-between border-b border-gray-200 pb-3 mb-6 gap-2 min-w-0">
+                    <h2 className="text-base min-[380px]:text-lg sm:text-xl font-bold font-wildcats text-gray-800 uppercase tracking-wide truncate shrink">
                         Existing Fixtures
                     </h2>
 
-                    <div className="flex flex-wrap gap-1 bg-gray-100 p-1 border border-gray-200">
+                    <div className="flex gap-0.5 bg-gray-100 p-0.5 border border-gray-200 shrink-0">
                         {SEASONS.map((season) => (
                             <button
                                 key={season}
                                 type="button"
                                 onClick={() => setSelectedSeasonFilter(season)}
-                                className={`px-3 py-1 text-xs font-bold uppercase cursor-pointer transition-colors ${
+                                className={`px-1 py-0.5 min-[380px]:px-1.5 min-[380px]:py-0.5 sm:px-2.5 sm:py-1 text-[8px] min-[380px]:text-[10px] sm:text-xs font-bold uppercase cursor-pointer transition-colors ${
                                     selectedSeasonFilter === season
                                         ? 'bg-wildcats-blue text-white shadow-xs'
                                         : 'text-gray-600 hover:text-gray-900'
@@ -506,31 +509,31 @@ export default function GameManager() {
                 </div>
 
                 {loading ? (
-                    <p className="text-sm text-gray-500">Loading scheduled games...</p>
+                    <p className="text-sm text-gray-500 text-center py-6 uppercase tracking-widest font-semibold">Loading fixtures...</p>
                 ) : filteredGames.length === 0 ? (
-                    <p className="text-sm text-gray-500 italic py-4 text-center">No fixtures found for the {selectedSeasonFilter} season.</p>
+                    <p className="text-sm text-gray-500 italic py-6 text-center">No fixtures found for the {selectedSeasonFilter} season.</p>
                 ) : (
                     <div className="space-y-4">
                         {filteredGames.map((game) => {
                             const isEditing = editingGameId === game._id;
                             const isPastGame = new Date(editFormData.date || game.date) < new Date();
+                            const isEnded = game.status === 'END' || game.status === 'FINAL';
 
-                            return (
-                                <div
-                                    key={game._id}
-                                    className={`border rounded p-4 flex flex-col gap-4 transition-all shadow-sm ${
-                                        isEditing ? 'border-wildcats-blue bg-blue-50/20' : 'border-gray-200 bg-gray-50'
-                                    }`}
-                                >
-                                    {isEditing ? (
+                            const gameDate = new Date(game.date);
+                            const dateString = gameDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }).toUpperCase();
+                            const timeString = gameDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).toUpperCase();
+
+                            if (isEditing) {
+                                return (
+                                    <div key={game._id} className="bg-white border-2 border-wildcats-blue shadow-md p-4 sm:p-5 relative overflow-hidden group">
                                         <div className="space-y-4">
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                                                 <div>
                                                     <label className="block text-[10px] font-bold uppercase text-gray-500 mb-0.5">Season</label>
                                                     <select
                                                         value={editFormData.season}
                                                         onChange={(e) => setEditFormData({ ...editFormData, season: e.target.value })}
-                                                        className="w-full border p-1.5 text-xs bg-white font-semibold"
+                                                        className="w-full border border-gray-300 p-2 text-xs bg-white font-semibold outline-none focus:border-wildcats-blue"
                                                     >
                                                         {SEASONS.map(s => <option key={s} value={s}>{s}</option>)}
                                                     </select>
@@ -541,7 +544,7 @@ export default function GameManager() {
                                                         type="date"
                                                         value={editFormData.date}
                                                         onChange={(e) => setEditFormData({ ...editFormData, date: e.target.value })}
-                                                        className="w-full border p-1.5 text-xs bg-white font-semibold"
+                                                        className="w-full border border-gray-300 p-2 text-xs bg-white font-semibold outline-none focus:border-wildcats-blue"
                                                     />
                                                 </div>
                                                 <div>
@@ -550,7 +553,7 @@ export default function GameManager() {
                                                         type="time"
                                                         value={editFormData.time}
                                                         onChange={(e) => setEditFormData({ ...editFormData, time: e.target.value })}
-                                                        className="w-full border p-1.5 text-xs bg-white font-semibold"
+                                                        className="w-full border border-gray-300 p-2 text-xs bg-white font-semibold outline-none focus:border-wildcats-blue"
                                                     />
                                                 </div>
                                                 <div>
@@ -559,7 +562,7 @@ export default function GameManager() {
                                                         type="text"
                                                         value={editFormData.venue}
                                                         onChange={(e) => setEditFormData({ ...editFormData, venue: e.target.value })}
-                                                        className="w-full border p-1.5 text-xs bg-white font-semibold"
+                                                        className="w-full border border-gray-300 p-2 text-xs bg-white font-semibold outline-none focus:border-wildcats-blue"
                                                     />
                                                 </div>
                                                 <div>
@@ -568,7 +571,7 @@ export default function GameManager() {
                                                         type="url"
                                                         value={editFormData.buihaLink}
                                                         onChange={(e) => setEditFormData({ ...editFormData, buihaLink: e.target.value })}
-                                                        className="w-full border p-1.5 text-xs bg-white font-semibold"
+                                                        className="w-full border border-gray-300 p-2 text-xs bg-white font-semibold outline-none focus:border-wildcats-blue"
                                                     />
                                                 </div>
                                                 <div>
@@ -576,7 +579,7 @@ export default function GameManager() {
                                                     <select
                                                         value={editFormData.gameType}
                                                         onChange={(e) => setEditFormData({ ...editFormData, gameType: e.target.value })}
-                                                        className="w-full border p-1.5 text-xs bg-white font-semibold truncate"
+                                                        className="w-full border border-gray-300 p-2 text-xs bg-white font-semibold truncate outline-none focus:border-wildcats-blue"
                                                     >
                                                         {Object.entries(groupedGameTypes).map(([category, options]) => (
                                                             <optgroup key={category} label={category}>
@@ -591,8 +594,8 @@ export default function GameManager() {
                                                 </div>
                                             </div>
 
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white p-3 border border-gray-200 rounded">
-                                                <div className="space-y-2">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-3 sm:p-4 border border-gray-200">
+                                                <div className="space-y-3">
                                                     <TeamSelectDropdown
                                                         label="Home Team"
                                                         labelColorClass="text-wildcats-red"
@@ -605,13 +608,13 @@ export default function GameManager() {
                                                             });
                                                         }}
                                                     />
-                                                    <div className="flex gap-2">
+                                                    <div className="flex flex-row gap-3">
                                                         <div className="flex-1">
-                                                            <span className="text-[10px] font-bold text-gray-500 uppercase">Team:</span>
+                                                            <span className="text-[10px] font-bold text-gray-500 uppercase">Letter:</span>
                                                             <select
                                                                 value={editFormData.homeTeamLetter}
                                                                 onChange={(e) => setEditFormData({ ...editFormData, homeTeamLetter: e.target.value })}
-                                                                className="w-full border p-1 text-xs font-bold bg-white rounded"
+                                                                className="w-full border border-gray-300 p-2 text-xs font-bold bg-white outline-none focus:border-wildcats-blue mt-0.5"
                                                             >
                                                                 {TEAMS[editFormData.homeClubIdx]?.teams.map((l) => (
                                                                     <option key={l} value={l}>{l}</option>
@@ -619,20 +622,21 @@ export default function GameManager() {
                                                             </select>
                                                         </div>
                                                         {isPastGame && (
-                                                            <div className="w-20">
+                                                            <div className="w-20 shrink-0">
                                                                 <span className="text-[10px] font-bold text-wildcats-red uppercase">Score:</span>
                                                                 <input
                                                                     type="number"
+                                                                    min="0"
                                                                     value={editFormData.homeScore}
                                                                     onChange={(e) => setEditFormData({ ...editFormData, homeScore: e.target.value })}
-                                                                    className="w-full border p-1 text-center text-xs font-bold bg-white rounded"
+                                                                    className="w-full border border-gray-300 p-2 text-center text-xs font-bold bg-white outline-none focus:border-wildcats-blue mt-0.5"
                                                                 />
                                                             </div>
                                                         )}
                                                     </div>
                                                 </div>
 
-                                                <div className="space-y-2">
+                                                <div className="space-y-3 mt-4 md:mt-0">
                                                     <TeamSelectDropdown
                                                         label="Away Team"
                                                         labelColorClass="text-wildcats-blue"
@@ -645,13 +649,13 @@ export default function GameManager() {
                                                             });
                                                         }}
                                                     />
-                                                    <div className="flex gap-2">
+                                                    <div className="flex flex-row gap-3">
                                                         <div className="flex-1">
-                                                            <span className="text-[10px] font-bold text-gray-500 uppercase">Team:</span>
+                                                            <span className="text-[10px] font-bold text-gray-500 uppercase">Letter:</span>
                                                             <select
                                                                 value={editFormData.awayTeamLetter}
                                                                 onChange={(e) => setEditFormData({ ...editFormData, awayTeamLetter: e.target.value })}
-                                                                className="w-full border p-1 text-xs font-bold bg-white rounded"
+                                                                className="w-full border border-gray-300 p-2 text-xs font-bold bg-white outline-none focus:border-wildcats-blue mt-0.5"
                                                             >
                                                                 {TEAMS[editFormData.awayClubIdx]?.teams.map((l) => (
                                                                     <option key={l} value={l}>{l}</option>
@@ -659,13 +663,14 @@ export default function GameManager() {
                                                             </select>
                                                         </div>
                                                         {isPastGame && (
-                                                            <div className="w-20">
+                                                            <div className="w-20 shrink-0">
                                                                 <span className="text-[10px] font-bold text-wildcats-blue uppercase">Score:</span>
                                                                 <input
                                                                     type="number"
+                                                                    min="0"
                                                                     value={editFormData.awayScore}
                                                                     onChange={(e) => setEditFormData({ ...editFormData, awayScore: e.target.value })}
-                                                                    className="w-full border p-1 text-center text-xs font-bold bg-white rounded"
+                                                                    className="w-full border border-gray-300 p-2 text-center text-xs font-bold bg-white outline-none focus:border-wildcats-blue mt-0.5"
                                                                 />
                                                             </div>
                                                         )}
@@ -673,124 +678,116 @@ export default function GameManager() {
                                                 </div>
                                             </div>
 
-                                            <div className="flex justify-between items-center bg-white p-3 border border-gray-200 rounded">
-                                                <span className="text-xs text-gray-500 italic">
-                                                    {isPastGame ? 'Past game editing mode' : 'Upcoming game mode'}
-                                                </span>
-
-                                                <select
-                                                    value={editFormData.status}
-                                                    onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
-                                                    className="border p-1 text-xs font-bold uppercase bg-gray-50"
-                                                >
-                                                    <option value="UPCOMING">UPCOMING</option>
-                                                    <option value="END">END</option>
-                                                </select>
-                                            </div>
-
-                                            <div className="flex justify-end gap-2 pt-1">
-                                                <button
-                                                    onClick={() => setEditingGameId(null)}
-                                                    className="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-bold uppercase rounded transition-colors cursor-pointer"
-                                                >
-                                                    Cancel
-                                                </button>
-                                                <button
-                                                    onClick={() => saveEdit(game)}
-                                                    className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold uppercase rounded transition-colors cursor-pointer"
-                                                >
-                                                    Save Changes
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-                                            <div className="space-y-1.5">
-                                                <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-gray-800">
-                                                    <span>{new Date(game.date).toLocaleDateString()}</span>
-                                                    <span className="text-gray-300">|</span>
-                                                    <span>{new Date(game.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                                    <span className="text-gray-300">|</span>
-                                                    <span className="text-gray-600 font-semibold italic">{game.venue}</span>
-                                                    {game.buihaLink && (
-                                                        <>
-                                                            <span className="text-gray-300">|</span>
-                                                            <a href={game.buihaLink} target="_blank" rel="noreferrer" className="text-wildcats-blue underline hover:text-blue-700">
-                                                                BUIHA Link
-                                                            </a>
-                                                        </>
-                                                    )}
-                                                </div>
-
-                                                <div className="text-sm font-bold text-gray-900 flex items-center gap-2 pt-0.5">
-                                                    <span>{game.homeTeam.name}</span>
-                                                    <span className="text-xs text-gray-400 font-normal uppercase">vs</span>
-                                                    <span>{game.awayTeam.name}</span>
-                                                </div>
-
-                                                <div className="text-[10px] text-wildcats-blue font-bold uppercase tracking-wider">
-                                                    {game.gameType}
-                                                </div>
-                                            </div>
-
-                                            <div className="flex flex-wrap items-center gap-3 bg-white p-2.5 border border-gray-200 rounded w-full lg:w-auto justify-between lg:justify-end">
-                                                <div className="flex items-center gap-2">
-                                                    {game.homeTeam.logo ? (
-                                                        <img src={game.homeTeam.logo} alt="" className="w-6 h-6 object-contain" />
-                                                    ) : (
-                                                        <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-[10px] font-bold">
-                                                            {game.homeTeam.teamLetter}
-                                                        </div>
-                                                    )}
-                                                    <span className="w-6 text-center font-bold text-sm text-gray-800">
-                                                        {game.homeTeam.score}
-                                                    </span>
-                                                </div>
-
-                                                <span className="text-xs font-bold text-gray-300">:</span>
-
-                                                <div className="flex items-center gap-2">
-                                                    <span className="w-6 text-center font-bold text-sm text-gray-800">
-                                                        {game.awayTeam.score}
-                                                    </span>
-                                                    {game.awayTeam.logo ? (
-                                                        <img src={game.awayTeam.logo} alt="" className="w-6 h-6 object-contain" />
-                                                    ) : (
-                                                        <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-[10px] font-bold">
-                                                            {game.awayTeam.teamLetter}
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                <div className="h-6 w-px bg-gray-200 hidden sm:block" />
-
-                                                <span className={`px-2 py-1 text-xs font-bold uppercase rounded ${
-                                                    game.status === 'END' || game.status === 'FINAL' ? 'bg-gray-100 text-gray-600' : 'bg-blue-50 text-wildcats-blue'
-                                                }`}>
-                                                    {game.status === 'FINAL' ? 'END' : game.status}
-                                                </span>
-
-                                                <div className="h-6 w-px bg-gray-200" />
-
-                                                <div className="flex items-center gap-1">
-                                                    <button
-                                                        onClick={() => startEditing(game)}
-                                                        title="Edit Game Details"
-                                                        className="p-1.5 text-gray-600 hover:text-wildcats-blue hover:bg-gray-100 rounded transition-colors cursor-pointer text-xs font-semibold"
+                                            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center bg-gray-50 p-3 sm:p-4 border border-gray-200 gap-4">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-xs font-bold text-gray-600 uppercase shrink-0">Status:</span>
+                                                    <select
+                                                        value={editFormData.status}
+                                                        onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+                                                        className="border border-gray-300 p-2 text-xs font-bold uppercase bg-white outline-none focus:border-wildcats-blue w-full sm:w-auto"
                                                     >
-                                                        Edit
+                                                        <option value="UPCOMING">UPCOMING</option>
+                                                        <option value="END">END</option>
+                                                    </select>
+                                                </div>
+
+                                                <div className="flex flex-row gap-2 w-full sm:w-auto">
+                                                    <button
+                                                        onClick={() => setEditingGameId(null)}
+                                                        className="flex-1 sm:flex-none px-4 py-2 border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 text-xs font-bold uppercase transition-colors cursor-pointer"
+                                                    >
+                                                        Cancel
                                                     </button>
                                                     <button
-                                                        onClick={() => handleDeleteGame(game._id)}
-                                                        title="Delete Game"
-                                                        className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer text-xs font-semibold"
+                                                        onClick={() => saveEdit(game)}
+                                                        className="flex-1 sm:flex-none px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold uppercase transition-colors cursor-pointer"
                                                     >
-                                                        Delete
+                                                        Save
                                                     </button>
                                                 </div>
                                             </div>
                                         </div>
-                                    )}
+                                    </div>
+                                );
+                            }
+
+                            return (
+                                <div key={game._id} className="bg-white border border-gray-200 hover:border-gray-300 p-5 relative overflow-hidden group flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm transition-all">
+                                    <span className={`absolute top-0 left-0 px-3 py-0.5 text-[9px] font-bold uppercase tracking-widest text-white ${
+                                        isEnded ? 'bg-gray-400' : 'bg-wildcats-blue'
+                                    }`}>
+                                        {isEnded ? 'Ended' : 'Upcoming'}
+                                    </span>
+
+                                    <div className="w-full md:w-56 space-y-1 text-center md:text-left mt-3 md:mt-0 flex flex-col">
+                                        <div className="text-[10px] font-bold text-wildcats-blue uppercase tracking-wider">
+                                            {formatGameTypeLabel(game.gameType)}
+                                        </div>
+                                        <div className="text-xs font-bold text-gray-700">
+                                            {dateString} • {timeString}
+                                        </div>
+                                        <div className="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-wider truncate">
+                                            {game.venue}
+                                        </div>
+                                        {game.buihaLink && (
+                                            <a href={game.buihaLink} target="_blank" rel="noreferrer" className="text-[9px] font-bold text-wildcats-red uppercase tracking-wider underline mt-1 hover:text-red-800 transition-colors w-fit mx-auto md:mx-0">
+                                                BUIHA Link
+                                            </a>
+                                        )}
+                                    </div>
+
+                                    <div className="flex-1 flex items-center justify-center gap-3 sm:gap-6 w-full py-2 md:py-0">
+                                        <div className="flex-1 flex flex-col items-center text-center gap-2">
+                                            {game.awayTeam.logo ? (
+                                                <img src={game.awayTeam.logo} alt="" className="w-10 h-10 sm:w-14 sm:h-14 object-contain" />
+                                            ) : (
+                                                <div className="w-10 h-10 sm:w-14 sm:h-14 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">
+                                                    {game.awayTeam.teamLetter}
+                                                </div>
+                                            )}
+                                            <span className="text-xs sm:text-sm font-bold text-gray-900 uppercase leading-tight">
+                                                {getFullTeamName(game.awayTeam)}
+                                            </span>
+                                        </div>
+
+                                        <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-200 shadow-xs shrink-0">
+                                            <span className="font-bold text-base sm:text-lg text-gray-900 w-5 sm:w-7 text-center">
+                                                {isEnded ? game.awayTeam.score : '—'}
+                                            </span>
+                                            <span className="text-xs text-gray-300 font-bold">:</span>
+                                            <span className="font-bold text-base sm:text-lg text-gray-900 w-5 sm:w-7 text-center">
+                                                {isEnded ? game.homeTeam.score : '—'}
+                                            </span>
+                                        </div>
+
+                                        <div className="flex-1 flex flex-col items-center text-center gap-2">
+                                            {game.homeTeam.logo ? (
+                                                <img src={game.homeTeam.logo} alt="" className="w-10 h-10 sm:w-14 sm:h-14 object-contain" />
+                                            ) : (
+                                                <div className="w-10 h-10 sm:w-14 sm:h-14 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">
+                                                    {game.homeTeam.teamLetter}
+                                                </div>
+                                            )}
+                                            <span className="text-xs sm:text-sm font-bold text-gray-900 uppercase leading-tight">
+                                                {getFullTeamName(game.homeTeam)}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="w-full md:w-28 flex flex-row md:flex-col justify-center md:justify-end gap-2 mt-2 md:mt-0">
+                                        <button
+                                            onClick={() => startEditing(game)}
+                                            className="flex-1 px-4 py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider border border-gray-300 text-gray-700 bg-gray-50 hover:bg-gray-100 text-center transition-colors cursor-pointer"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteGame(game._id)}
+                                            className="flex-1 px-4 py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 text-center transition-colors cursor-pointer"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
                                 </div>
                             );
                         })}
