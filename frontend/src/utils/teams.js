@@ -2,7 +2,7 @@ export const TEAMS = [
     {
         name: "Newcastle Wildcats",
         shortName: "NEW",
-        logo: "https://newcastlewildcats.co.uk/assets/wildcats-logo-DHi1S8Li.png",
+        logo: "https://buiha.org.uk/assets/img/icon/md/newcastle.png",
         teams: ["A", "B", "C", "Alumni"]
     },
     {
