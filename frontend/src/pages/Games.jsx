@@ -83,18 +83,18 @@ export default function Games() {
 
     return (
         <div className="max-w-5xl mx-auto p-4 sm:p-6 font-sans">
-            <div className="flex items-center justify-between border-b border-gray-200 pb-4 mb-6 gap-2">
-                <h1 className="text-xl sm:text-2xl font-bold font-wildcats text-wildcats-blue uppercase tracking-wide">
+            <div className="flex items-center justify-between border-b border-gray-200 pb-3 mb-6 gap-2 min-w-0">
+                <h1 className="text-base min-[380px]:text-lg sm:text-2xl font-bold font-wildcats text-wildcats-blue uppercase tracking-wide truncate shrink">
                     Fixtures & Results
                 </h1>
 
-                <div className="flex gap-1 bg-gray-100 p-0.5 sm:p-1 border border-gray-200 shrink-0">
+                <div className="flex gap-0.5 bg-gray-100 p-0.5 border border-gray-200 shrink-0">
                     {SEASONS.map((season) => (
                         <button
                             key={season}
                             type="button"
                             onClick={() => setSelectedSeason(season)}
-                            className={`px-2 py-1 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-bold uppercase cursor-pointer transition-colors ${
+                            className={`px-1 py-0.5 min-[380px]:px-1.5 min-[380px]:py-0.5 sm:px-2.5 sm:py-1 text-[8px] min-[380px]:text-[10px] sm:text-xs font-bold uppercase cursor-pointer transition-colors ${
                                 selectedSeason === season
                                     ? 'bg-wildcats-blue text-white shadow-xs'
                                     : 'text-gray-600 hover:text-gray-900'
