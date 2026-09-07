@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TEAMS } from '../utils/teams';
+import { BUIHA_TEAMS } from '../utils/buihaTeams.js';
 import { formatGameTypeLabel } from '../utils/formatters';
 
 const SEASONS = ["2026/27", "2025/26"];
@@ -36,7 +36,7 @@ export default function Games() {
 
     const getFullTeamName = (teamObj) => {
         if (!teamObj) return '';
-        const matchedClub = TEAMS.find(t => teamObj.name.includes(t.name) || teamObj.shortName?.includes(t.shortName));
+        const matchedClub = BUIHA_TEAMS.find(t => teamObj.name.includes(t.name) || teamObj.shortName?.includes(t.shortName));
         if (matchedClub) {
             return `${matchedClub.name} ${teamObj.teamLetter || ''}`.trim();
         }
@@ -60,7 +60,7 @@ export default function Games() {
         }
     };
 
-    const wildcatsClub = TEAMS.find(t => t.name.toLowerCase().includes('wildcats') || t.shortName.toLowerCase().includes('wildcats'));
+    const wildcatsClub = BUIHA_TEAMS.find(t => t.name.toLowerCase().includes('wildcats') || t.shortName.toLowerCase().includes('wildcats'));
     const allWildcatTeamVariants = wildcatsClub
         ? wildcatsClub.teams.map(letter => `${wildcatsClub.name} ${letter}`)
         : [];

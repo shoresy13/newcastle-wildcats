@@ -1,5 +1,6 @@
 import express from 'express';
 import Game from '../models/Game.js';
+import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', protect, admin, async (req, res) => {
     try {
         const newGame = new Game(req.body);
         const savedGame = await newGame.save();
@@ -22,7 +23,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', protect, admin, async (req, res) => {
     try {
         const updatedGame = await Game.findByIdAndUpdate(req.params.id, req.body, { new: true });
         res.json(updatedGame);
@@ -31,7 +32,7 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', protect, admin, async (req, res) => {
     try {
         await Game.findByIdAndDelete(req.params.id);
         res.json({ message: 'Game deleted successfully' });

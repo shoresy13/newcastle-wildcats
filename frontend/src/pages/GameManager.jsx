@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TEAMS } from '../utils/teams';
+import {  BUIHA_TEAMS } from '../utils/buihaTeams';
 import { GAME_TYPES } from '../utils/gameTypes';
 import { formatGameTypeLabel } from '../utils/formatters';
+import { useNavigate } from 'react-router';
 
 const SEASONS = ["2026/27", "2025/26"];
 
@@ -19,7 +20,7 @@ function TeamSelectDropdown({ label, labelColorClass, selectedIndex, onSelect })
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const selectedTeam = TEAMS[selectedIndex];
+    const selectedTeam = BUIHA_TEAMS[selectedIndex];
 
     return (
         <div className="relative" ref={dropdownRef}>
@@ -48,7 +49,7 @@ function TeamSelectDropdown({ label, labelColorClass, selectedIndex, onSelect })
 
             {isOpen && (
                 <div className="absolute z-30 mt-1 w-full bg-white border border-gray-300 shadow-lg max-h-56 overflow-y-auto divide-y divide-gray-100">
-                    {TEAMS.map((team, idx) => (
+                    {BUIHA_TEAMS.map((team, idx) => (
                         <div
                             key={team.shortName}
                             onClick={() => {
@@ -83,10 +84,10 @@ export default function GameManager() {
     const [selectedSeasonFilter, setSelectedSeasonFilter] = useState(SEASONS[0]);
 
     const [homeClubIdx, setHomeClubIdx] = useState(0);
-    const [homeTeamLetter, setHomeTeamLetter] = useState(TEAMS[0].teams[0]);
+    const [homeTeamLetter, setHomeTeamLetter] = useState(BUIHA_TEAMS[0].teams[0]);
 
     const [awayClubIdx, setAwayClubIdx] = useState(1);
-    const [awayTeamLetter, setAwayTeamLetter] = useState(TEAMS[1].teams[0]);
+    const [awayTeamLetter, setAwayTeamLetter] = useState(BUIHA_TEAMS[1].teams[0]);
 
     const [formData, setFormData] = useState({
         date: '',
@@ -103,6 +104,7 @@ export default function GameManager() {
     const [editingGameId, setEditingGameId] = useState(null);
     const [editFormData, setEditFormData] = useState({});
 
+    const navigate = useNavigate();
     const API_BASE = (import.meta.env.VITE_API_URL || 'https://newcastle-wildcats.onrender.com').replace(/\/$/, '');
 
     const isFormPastDate = formData.date ? new Date(`${formData.date}T${formData.time || '00:00'}`) < new Date() : false;
@@ -137,7 +139,7 @@ export default function GameManager() {
 
     const getFullTeamName = (teamObj) => {
         if (!teamObj) return '';
-        const matchedClub = TEAMS.find(t => teamObj.name.includes(t.name) || teamObj.shortName?.includes(t.shortName));
+        const matchedClub = BUIHA_TEAMS.find(t => teamObj.name.includes(t.name) || teamObj.shortName?.includes(t.shortName));
         if (matchedClub) {
             return `${matchedClub.name} ${teamObj.teamLetter || ''}`.trim();
         }
@@ -146,12 +148,12 @@ export default function GameManager() {
 
     const handleHomeClubChange = (idx) => {
         setHomeClubIdx(idx);
-        setHomeTeamLetter(TEAMS[idx].teams[0]);
+        setHomeTeamLetter(BUIHA_TEAMS[idx].teams[0]);
     };
 
     const handleAwayClubChange = (idx) => {
         setAwayClubIdx(idx);
-        setAwayTeamLetter(TEAMS[1].teams[0]);
+        setAwayTeamLetter(BUIHA_TEAMS[1].teams[0]);
     };
 
     const handleSubmit = async (e) => {
@@ -159,8 +161,8 @@ export default function GameManager() {
         setMessage({ text: '', isError: false });
 
         const combinedDateTime = new Date(`${formData.date}T${formData.time}`);
-        const selectedHome = TEAMS[homeClubIdx];
-        const selectedAway = TEAMS[awayClubIdx];
+        const selectedHome = BUIHA_TEAMS[homeClubIdx];
+        const selectedAway = BUIHA_TEAMS[awayClubIdx];
 
         const payload = {
             date: combinedDateTime.toISOString(),
@@ -249,8 +251,8 @@ export default function GameManager() {
         const localDate = d.toISOString().split('T')[0];
         const localTime = d.toTimeString().slice(0, 5);
 
-        const hIdx = TEAMS.findIndex(t => game.homeTeam.name.includes(t.name)) ?? 0;
-        const aIdx = TEAMS.findIndex(t => game.awayTeam.name.includes(t.name)) ?? 1;
+        const hIdx = BUIHA_TEAMS.findIndex(t => game.homeTeam.name.includes(t.name)) ?? 0;
+        const aIdx = BUIHA_TEAMS.findIndex(t => game.awayTeam.name.includes(t.name)) ?? 1;
 
         setEditingGameId(game._id);
         setEditFormData({
@@ -272,8 +274,8 @@ export default function GameManager() {
 
     const saveEdit = (game) => {
         const combinedDateTime = new Date(`${editFormData.date}T${editFormData.time}`);
-        const selectedHome = TEAMS[editFormData.homeClubIdx];
-        const selectedAway = TEAMS[editFormData.awayClubIdx];
+        const selectedHome = BUIHA_TEAMS[editFormData.homeClubIdx];
+        const selectedAway = BUIHA_TEAMS[editFormData.awayClubIdx];
 
         handleUpdateGame(game._id, {
             date: combinedDateTime.toISOString(),
@@ -305,9 +307,17 @@ export default function GameManager() {
 
     return (
         <div className="max-w-5xl mx-auto p-4 sm:p-6 font-sans">
-            <h1 className="text-xl sm:text-2xl font-bold font-wildcats text-wildcats-blue uppercase mb-6 text-center sm:text-left">
-                Game Manager
-            </h1>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <h1 className="text-xl sm:text-2xl font-bold font-wildcats text-wildcats-blue uppercase text-center sm:text-left">
+                    Game Manager
+                </h1>
+                <button
+                    onClick={() => navigate('/admin')}
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold uppercase tracking-wider border border-gray-300 transition-colors cursor-pointer text-center"
+                >
+                    &larr; Back to Dashboard
+                </button>
+            </div>
 
             {message.text && (
                 <div className={`p-3 mb-6 text-sm font-semibold text-center sm:text-left ${message.isError ? 'bg-red-100 text-red-700 border border-red-300' : 'bg-green-100 text-green-700 border border-green-300'}`}>
@@ -412,7 +422,7 @@ export default function GameManager() {
                                         onChange={(e) => setHomeTeamLetter(e.target.value)}
                                         className="w-full border border-gray-300 p-2 text-sm bg-white font-bold outline-none focus:border-wildcats-blue"
                                     >
-                                        {TEAMS[homeClubIdx].teams.map((letter) => (
+                                        {BUIHA_TEAMS[homeClubIdx].teams.map((letter) => (
                                             <option key={letter} value={letter}>
                                                 {letter}
                                             </option>
@@ -451,7 +461,7 @@ export default function GameManager() {
                                         onChange={(e) => setAwayTeamLetter(e.target.value)}
                                         className="w-full border border-gray-300 p-2 text-sm bg-white font-bold outline-none focus:border-wildcats-blue"
                                     >
-                                        {TEAMS[awayClubIdx].teams.map((letter) => (
+                                        {BUIHA_TEAMS[awayClubIdx].teams.map((letter) => (
                                             <option key={letter} value={letter}>
                                                 {letter}
                                             </option>
@@ -604,7 +614,7 @@ export default function GameManager() {
                                                             setEditFormData({
                                                                 ...editFormData,
                                                                 homeClubIdx: idx,
-                                                                homeTeamLetter: TEAMS[idx].teams[0]
+                                                                homeTeamLetter: BUIHA_TEAMS[idx].teams[0]
                                                             });
                                                         }}
                                                     />
@@ -616,7 +626,7 @@ export default function GameManager() {
                                                                 onChange={(e) => setEditFormData({ ...editFormData, homeTeamLetter: e.target.value })}
                                                                 className="w-full border border-gray-300 p-2 text-xs font-bold bg-white outline-none focus:border-wildcats-blue mt-0.5"
                                                             >
-                                                                {TEAMS[editFormData.homeClubIdx]?.teams.map((l) => (
+                                                                {BUIHA_TEAMS[editFormData.homeClubIdx]?.teams.map((l) => (
                                                                     <option key={l} value={l}>{l}</option>
                                                                 ))}
                                                             </select>
@@ -645,7 +655,7 @@ export default function GameManager() {
                                                             setEditFormData({
                                                                 ...editFormData,
                                                                 awayClubIdx: idx,
-                                                                awayTeamLetter: TEAMS[idx].teams[0]
+                                                                awayTeamLetter: BUIHA_TEAMS[idx].teams[0]
                                                             });
                                                         }}
                                                     />
@@ -657,7 +667,7 @@ export default function GameManager() {
                                                                 onChange={(e) => setEditFormData({ ...editFormData, awayTeamLetter: e.target.value })}
                                                                 className="w-full border border-gray-300 p-2 text-xs font-bold bg-white outline-none focus:border-wildcats-blue mt-0.5"
                                                             >
-                                                                {TEAMS[editFormData.awayClubIdx]?.teams.map((l) => (
+                                                                {BUIHA_TEAMS[editFormData.awayClubIdx]?.teams.map((l) => (
                                                                     <option key={l} value={l}>{l}</option>
                                                                 ))}
                                                             </select>

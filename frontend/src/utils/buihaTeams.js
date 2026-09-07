@@ -1,4 +1,4 @@
-export const TEAMS = [
+export const BUIHA_TEAMS = [
     {
         name: "Newcastle Wildcats",
         shortName: "NEW",

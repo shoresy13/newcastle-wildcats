@@ -16,6 +16,9 @@ import Login from "./pages/Login.jsx";
 
 import Admin from "./pages/Admin.jsx"
 import GameManager from "./pages/GameManager.jsx";
+import TeamManager from "./pages/TeamManager.jsx";
+import TeamEdit from "./pages/TeamEdit.jsx";
+import PlayerManager from "./pages/PlayerManager.jsx";
 
 
 function ScrollToTop() {
@@ -64,7 +67,10 @@ export default function App() {
 
                 <Route element={<ProtectedRoute />}>
                     <Route path="admin" element={<Admin />} />
-                    <Route path="admin/add-game" element={<GameManager />} />
+                    <Route path="admin/game-manager" element={<GameManager />} />
+                    <Route path="admin/team-manager" element={<TeamManager />} />
+                    <Route path="admin/team-manager/:teamId" element={<TeamEdit />} />
+                    <Route path="admin/player-manager" element={<PlayerManager />} />
                 </Route>
             </Route>
         </Routes>

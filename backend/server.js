@@ -9,6 +9,8 @@ import mongoose from 'mongoose';
 
 import User from './models/User.js';
 import gameRoutes from './routes/gameRoutes.js';
+import teamRoutes from './routes/teamRoutes.js';
+import playerRoutes from './routes/playerRoutes.js';
 
 dotenv.config();
 
@@ -47,6 +49,8 @@ app.use(
 app.use(express.json());
 
 app.use('/api/games', gameRoutes);
+app.use('/api/teams', teamRoutes);
+app.use('/api/players', playerRoutes);
 
 app.post('/api/login', async (req, res) => {
     try {
