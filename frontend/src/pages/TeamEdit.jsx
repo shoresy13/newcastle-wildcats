@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 
+const DEFAULT_PROFILE_PIC = "https://buiha.org.uk/assets/img/profile/player-newcastle.jpg";
+
 const DIVISIONS = [
     'Unregistered',
     'Checking 1',
@@ -28,7 +30,9 @@ export default function TeamEdit() {
 
     const [editFormData, setEditFormData] = useState({});
 
+    const [isAddingRoster, setIsAddingRoster] = useState(false);
     const [rosterSearchQuery, setRosterSearchQuery] = useState('');
+
     const [isAddingCaptain, setIsAddingCaptain] = useState(false);
     const [captainSearchQuery, setCaptainSearchQuery] = useState('');
 
@@ -111,6 +115,7 @@ export default function TeamEdit() {
             ...prev,
             roster: [...(prev.roster || []), newRosterMember]
         }));
+        setIsAddingRoster(false);
         setRosterSearchQuery('');
         setMessage({ text: 'Member added to team roster.', isError: false });
     };
@@ -167,18 +172,18 @@ export default function TeamEdit() {
     const searchedAvailablePlayers = players.filter(p => {
         if (teamRoster.some(r => r.playerId === p._id)) return false;
         const query = rosterSearchQuery.toLowerCase();
-        return p.name.toLowerCase().includes(query) || String(p.number).includes(query);
+        return p.name.toLowerCase().includes(query) || String(p.number || '').includes(query);
     });
 
     return (
         <div className="max-w-4xl mx-auto p-4 sm:p-8 font-sans">
-            <div className="flex items-center justify-between gap-4 mb-6">
-                <h1 className="text-lg sm:text-xl font-bold font-wildcats text-gray-800 uppercase tracking-wide shrink-0">
+            <div className="flex items-center justify-between gap-2 mb-6">
+                <h1 className="text-sm min-[380px]:text-base sm:text-xl font-bold font-wildcats text-gray-800 uppercase tracking-wide shrink truncate">
                     Editing Team {editFormData.id}
                 </h1>
                 <button
                     onClick={() => navigate('/admin/team-manager')}
-                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold uppercase tracking-wider border border-gray-300 transition-colors cursor-pointer text-center shrink-0"
+                    className="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-[10px] min-[380px]:text-[11px] sm:text-xs font-bold uppercase tracking-wider border border-gray-300 transition-colors cursor-pointer text-center shrink-0 whitespace-nowrap"
                 >
                     &larr; Back to Team Manager
                 </button>
@@ -241,18 +246,19 @@ export default function TeamEdit() {
                         <div className="space-y-2">
                             {(editFormData.captain || []).map((capName, idx) => {
                                 const matchedPlayer = players.find(p => p.name === capName);
-                                const profilePic = matchedPlayer ? matchedPlayer.profilePic : null;
+                                const profilePic = matchedPlayer?.profilePic || DEFAULT_PROFILE_PIC;
                                 const number = matchedPlayer ? matchedPlayer.number : '';
 
                                 return (
-                                    <div key={idx} className="flex items-center justify-between bg-gray-50 border border-gray-300 p-3">
+                                    <div key={idx} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 border border-gray-300 p-3 gap-2">
                                         <div className="flex items-center gap-3">
-                                            {profilePic ? (
-                                                <img src={profilePic} alt="" className="w-8 h-8 object-cover rounded-full border border-gray-300 shrink-0" />
-                                            ) : (
-                                                <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0">{number ? `#${number}` : ''}</div>
-                                            )}
-                                            <span className="text-xs font-bold uppercase text-gray-800">{number ? `#${number} ` : ''}{capName}</span>
+                                            <img
+                                                src={profilePic}
+                                                alt=""
+                                                onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
+                                                className="w-8 h-8 object-cover rounded-full border border-gray-300 shrink-0"
+                                            />
+                                            <span className="text-xs font-bold uppercase text-gray-800">{number ? `#${number} ` : '— '}{capName}</span>
                                         </div>
                                         <button
                                             type="button"
@@ -260,7 +266,7 @@ export default function TeamEdit() {
                                                 const updatedCaptains = editFormData.captain.filter((_, i) => i !== idx);
                                                 handleFieldChange('captain', updatedCaptains);
                                             }}
-                                            className="text-xs text-red-600 hover:text-red-800 font-bold uppercase cursor-pointer"
+                                            className="text-xs text-red-600 hover:text-red-800 font-bold uppercase cursor-pointer self-end sm:self-auto"
                                         >
                                             Remove
                                         </button>
@@ -289,7 +295,7 @@ export default function TeamEdit() {
                                                 .filter(r => r.name.toLowerCase().includes(captainSearchQuery.toLowerCase()) && !(editFormData.captain || []).includes(r.name))
                                                 .map(r => {
                                                     const matchedPlayer = players.find(p => p._id === r.playerId);
-                                                    const profilePic = matchedPlayer ? matchedPlayer.profilePic : null;
+                                                    const profilePic = matchedPlayer?.profilePic || DEFAULT_PROFILE_PIC;
                                                     return (
                                                         <div key={r.playerId} className="flex items-center justify-between p-2.5 hover:bg-gray-50 cursor-pointer" onClick={() => {
                                                             const updatedCaptains = [...(editFormData.captain || []), r.name];
@@ -297,12 +303,13 @@ export default function TeamEdit() {
                                                             setIsAddingCaptain(false);
                                                         }}>
                                                             <div className="flex items-center gap-2">
-                                                                {profilePic ? (
-                                                                    <img src={profilePic} alt="" className="w-6 h-6 object-cover rounded-full border border-gray-300 shrink-0" />
-                                                                ) : (
-                                                                    <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0">#{r.number}</div>
-                                                                )}
-                                                                <span className="text-xs font-bold uppercase">#{r.number} {r.name}</span>
+                                                                <img
+                                                                    src={profilePic}
+                                                                    alt=""
+                                                                    onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
+                                                                    className="w-6 h-6 object-cover rounded-full border border-gray-300 shrink-0"
+                                                                />
+                                                                <span className="text-xs font-bold uppercase">{r.number ? `#${r.number} ` : '— '}{r.name}</span>
                                                             </div>
                                                             <span className="text-[10px] text-wildcats-blue font-bold uppercase">Add</span>
                                                         </div>
@@ -328,18 +335,19 @@ export default function TeamEdit() {
                         <div className="space-y-2">
                             {(editFormData.assistantCaptains || []).map((astName, idx) => {
                                 const matchedPlayer = players.find(p => p.name === astName);
-                                const profilePic = matchedPlayer ? matchedPlayer.profilePic : null;
+                                const profilePic = matchedPlayer?.profilePic || DEFAULT_PROFILE_PIC;
                                 const number = matchedPlayer ? matchedPlayer.number : '';
 
                                 return (
-                                    <div key={idx} className="flex items-center justify-between bg-gray-50 border border-gray-300 p-3">
+                                    <div key={idx} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 border border-gray-300 p-3 gap-2">
                                         <div className="flex items-center gap-3">
-                                            {profilePic ? (
-                                                <img src={profilePic} alt="" className="w-8 h-8 object-cover rounded-full border border-gray-300 shrink-0" />
-                                            ) : (
-                                                <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0">{number ? `#${number}` : ''}</div>
-                                            )}
-                                            <span className="text-xs font-bold uppercase text-gray-800">{number ? `#${number} ` : ''}{astName}</span>
+                                            <img
+                                                src={profilePic}
+                                                alt=""
+                                                onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
+                                                className="w-8 h-8 object-cover rounded-full border border-gray-300 shrink-0"
+                                            />
+                                            <span className="text-xs font-bold uppercase text-gray-800">{number ? `#${number} ` : '— '}{astName}</span>
                                         </div>
                                         <button
                                             type="button"
@@ -347,7 +355,7 @@ export default function TeamEdit() {
                                                 const updatedAssistants = editFormData.assistantCaptains.filter((_, i) => i !== idx);
                                                 handleFieldChange('assistantCaptains', updatedAssistants);
                                             }}
-                                            className="text-xs text-red-600 hover:text-red-800 font-bold uppercase cursor-pointer"
+                                            className="text-xs text-red-600 hover:text-red-800 font-bold uppercase cursor-pointer self-end sm:self-auto"
                                         >
                                             Remove
                                         </button>
@@ -376,7 +384,7 @@ export default function TeamEdit() {
                                                 .filter(r => r.name.toLowerCase().includes(assistantSearchQuery.toLowerCase()) && !(editFormData.assistantCaptains || []).includes(r.name))
                                                 .map(r => {
                                                     const matchedPlayer = players.find(p => p._id === r.playerId);
-                                                    const profilePic = matchedPlayer ? matchedPlayer.profilePic : null;
+                                                    const profilePic = matchedPlayer?.profilePic || DEFAULT_PROFILE_PIC;
                                                     return (
                                                         <div key={r.playerId} className="flex items-center justify-between p-2.5 hover:bg-gray-50 cursor-pointer" onClick={() => {
                                                             const updatedAssistants = [...(editFormData.assistantCaptains || []), r.name];
@@ -384,12 +392,13 @@ export default function TeamEdit() {
                                                             setIsAddingAssistant(false);
                                                         }}>
                                                             <div className="flex items-center gap-2">
-                                                                {profilePic ? (
-                                                                    <img src={profilePic} alt="" className="w-6 h-6 object-cover rounded-full border border-gray-300 shrink-0" />
-                                                                ) : (
-                                                                    <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0">#{r.number}</div>
-                                                                )}
-                                                                <span className="text-xs font-bold uppercase">#{r.number} {r.name}</span>
+                                                                <img
+                                                                    src={profilePic}
+                                                                    alt=""
+                                                                    onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
+                                                                    className="w-6 h-6 object-cover rounded-full border border-gray-300 shrink-0"
+                                                                />
+                                                                <span className="text-xs font-bold uppercase">{r.number ? `#${r.number} ` : '— '}{r.name}</span>
                                                             </div>
                                                             <span className="text-[10px] text-wildcats-blue font-bold uppercase">Add</span>
                                                         </div>
@@ -415,18 +424,19 @@ export default function TeamEdit() {
                         <div className="space-y-2">
                             {(editFormData.coaches || []).map((coachName, idx) => {
                                 const matchedPlayer = players.find(p => p.name === coachName);
-                                const profilePic = matchedPlayer ? matchedPlayer.profilePic : null;
+                                const profilePic = matchedPlayer?.profilePic || DEFAULT_PROFILE_PIC;
                                 const number = matchedPlayer ? matchedPlayer.number : '';
 
                                 return (
-                                    <div key={idx} className="flex items-center justify-between bg-gray-50 border border-gray-300 p-3">
+                                    <div key={idx} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 border border-gray-300 p-3 gap-2">
                                         <div className="flex items-center gap-3">
-                                            {profilePic ? (
-                                                <img src={profilePic} alt="" className="w-8 h-8 object-cover rounded-full border border-gray-300 shrink-0" />
-                                            ) : (
-                                                <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0">{number ? `#${number}` : ''}</div>
-                                            )}
-                                            <span className="text-xs font-bold uppercase text-gray-800">{number ? `#${number} ` : ''}{coachName}</span>
+                                            <img
+                                                src={profilePic}
+                                                alt=""
+                                                onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
+                                                className="w-8 h-8 object-cover rounded-full border border-gray-300 shrink-0"
+                                            />
+                                            <span className="text-xs font-bold uppercase text-gray-800">{number ? `#${number} ` : '— '}{coachName}</span>
                                         </div>
                                         <button
                                             type="button"
@@ -434,7 +444,7 @@ export default function TeamEdit() {
                                                 const updatedCoaches = editFormData.coaches.filter((_, i) => i !== idx);
                                                 handleFieldChange('coaches', updatedCoaches);
                                             }}
-                                            className="text-xs text-red-600 hover:text-red-800 font-bold uppercase cursor-pointer"
+                                            className="text-xs text-red-600 hover:text-red-800 font-bold uppercase cursor-pointer self-end sm:self-auto"
                                         >
                                             Remove
                                         </button>
@@ -463,7 +473,7 @@ export default function TeamEdit() {
                                                 .filter(r => r.name.toLowerCase().includes(coachSearchQuery.toLowerCase()) && !(editFormData.coaches || []).includes(r.name))
                                                 .map(r => {
                                                     const matchedPlayer = players.find(p => p._id === r.playerId);
-                                                    const profilePic = matchedPlayer ? matchedPlayer.profilePic : null;
+                                                    const profilePic = matchedPlayer?.profilePic || DEFAULT_PROFILE_PIC;
                                                     return (
                                                         <div key={r.playerId} className="flex items-center justify-between p-2.5 hover:bg-gray-50 cursor-pointer" onClick={() => {
                                                             const updatedCoaches = [...(editFormData.coaches || []), r.name];
@@ -471,12 +481,13 @@ export default function TeamEdit() {
                                                             setIsAddingCoach(false);
                                                         }}>
                                                             <div className="flex items-center gap-2">
-                                                                {profilePic ? (
-                                                                    <img src={profilePic} alt="" className="w-6 h-6 object-cover rounded-full border border-gray-300 shrink-0" />
-                                                                ) : (
-                                                                    <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0">#{r.number}</div>
-                                                                )}
-                                                                <span className="text-xs font-bold uppercase">#{r.number} {r.name}</span>
+                                                                <img
+                                                                    src={profilePic}
+                                                                    alt=""
+                                                                    onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
+                                                                    className="w-6 h-6 object-cover rounded-full border border-gray-300 shrink-0"
+                                                                />
+                                                                <span className="text-xs font-bold uppercase">{r.number ? `#${r.number} ` : '— '}{r.name}</span>
                                                             </div>
                                                             <span className="text-[10px] text-wildcats-blue font-bold uppercase">Add</span>
                                                         </div>
@@ -500,58 +511,76 @@ export default function TeamEdit() {
                     <div className="border-t border-gray-200 pt-6">
                         <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Manage Roster ({teamRoster.length} Members)</label>
 
-                        <div className="space-y-2 mb-3 bg-gray-50 p-3 border border-gray-200">
-                            <label className="block text-[10px] font-bold uppercase text-gray-500">Search & Add Member to Roster</label>
-                            <input
-                                type="text"
-                                placeholder="Search global members by name or number"
-                                value={rosterSearchQuery}
-                                onChange={(e) => setRosterSearchQuery(e.target.value)}
-                                className="w-full border border-gray-300 p-2.5 text-xs bg-white outline-none focus:border-wildcats-blue uppercase font-semibold"
-                            />
-
-                            {rosterSearchQuery.trim() && (
-                                <div className="max-h-40 overflow-y-auto bg-white border border-gray-200 divide-y">
-                                    {searchedAvailablePlayers.length === 0 ? (
-                                        <p className="p-2 text-xs text-gray-400 italic">No members found matching "{rosterSearchQuery}"</p>
-                                    ) : (
-                                        searchedAvailablePlayers.map(p => (
-                                            <div key={p._id} className="flex items-center justify-between p-2.5 hover:bg-gray-50">
-                                                <span className="text-xs font-bold uppercase">#{p.number} {p.name}</span>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleAssignPlayer(p)}
-                                                    className="px-3 py-1 bg-wildcats-blue text-white text-[10px] font-bold uppercase hover:bg-blue-800 cursor-pointer"
-                                                >
-                                                    Add to Roster
-                                                </button>
-                                            </div>
-                                        ))
-                                    )}
+                        <div className="space-y-2 mb-3">
+                            {isAddingRoster ? (
+                                <div className="bg-gray-50 border border-gray-300 p-3 space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[10px] font-bold uppercase text-gray-500">Search Global Members to Add</span>
+                                        <button type="button" onClick={() => setIsAddingRoster(false)} className="text-[10px] text-gray-500 uppercase underline cursor-pointer">Cancel</button>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Type player name"
+                                        value={rosterSearchQuery}
+                                        onChange={(e) => setRosterSearchQuery(e.target.value)}
+                                        className="w-full border border-gray-300 p-2.5 text-xs bg-white uppercase font-semibold outline-none"
+                                    />
+                                    <div className="max-h-36 overflow-y-auto bg-white border border-gray-200 divide-y">
+                                        {searchedAvailablePlayers.length === 0 ? (
+                                            <p className="p-2 text-xs text-gray-400 italic">No members found matching "{rosterSearchQuery}"</p>
+                                        ) : (
+                                            searchedAvailablePlayers.map(p => {
+                                                const profilePic = p.profilePic || DEFAULT_PROFILE_PIC;
+                                                return (
+                                                    <div key={p._id} className="flex items-center justify-between p-2.5 hover:bg-gray-50 cursor-pointer" onClick={() => handleAssignPlayer(p)}>
+                                                        <div className="flex items-center gap-2">
+                                                            <img
+                                                                src={profilePic}
+                                                                alt=""
+                                                                onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
+                                                                className="w-6 h-6 object-cover rounded-full border border-gray-300 shrink-0"
+                                                            />
+                                                            <span className="text-xs font-bold uppercase">{p.number ? `#${p.number} ` : '— '}{p.name}</span>
+                                                        </div>
+                                                        <span className="text-[10px] text-wildcats-blue font-bold uppercase">Add</span>
+                                                    </div>
+                                                );
+                                            })
+                                        )}
+                                    </div>
                                 </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => { setIsAddingRoster(true); setRosterSearchQuery(''); }}
+                                    className="px-4 py-2.5 bg-gray-800 hover:bg-black text-white text-xs font-bold uppercase cursor-pointer"
+                                >
+                                    + Add Member to Roster
+                                </button>
                             )}
                         </div>
 
                         <div className="max-h-60 overflow-y-auto bg-gray-50 border border-gray-300 p-2.5 space-y-2">
                             {teamRoster.length === 0 ? (
-                                <span className="text-xs text-gray-400 italic">No members assigned to this team yet. Use the search box above to add members.</span>
+                                <span className="text-xs text-gray-400 italic">No members assigned to this team yet. Use the button above to add members.</span>
                             ) : (
                                 teamRoster.map(r => {
                                     const matchingPlayer = players.find(p => p._id === r.playerId);
-                                    const profilePic = matchingPlayer ? matchingPlayer.profilePic : null;
+                                    const profilePic = matchingPlayer?.profilePic || DEFAULT_PROFILE_PIC;
 
                                     return (
-                                        <div key={r.playerId} className="flex items-center justify-between bg-white border border-gray-200 px-3 py-2.5 gap-2">
+                                        <div key={r.playerId} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white border border-gray-200 px-3 py-2.5 gap-2">
                                             <div className="flex items-center gap-3">
-                                                {profilePic ? (
-                                                    <img src={profilePic} alt="" className="w-8 h-8 object-cover rounded-full border border-gray-200 shrink-0" />
-                                                ) : (
-                                                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0">#{r.number}</div>
-                                                )}
-                                                <span className="text-xs font-bold uppercase text-gray-800">#{r.number} {r.name}</span>
+                                                <img
+                                                    src={profilePic}
+                                                    alt=""
+                                                    onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
+                                                    className="w-8 h-8 object-cover rounded-full border border-gray-200 shrink-0"
+                                                />
+                                                <span className="text-xs font-bold uppercase text-gray-800">{r.number ? `#${r.number} ` : '— '}{r.name}</span>
                                             </div>
 
-                                            <div className="flex items-center gap-3">
+                                            <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-1 sm:pt-0 border-t sm:border-t-0 border-gray-100">
                                                 <select
                                                     value={r.position || '-'}
                                                     onChange={(e) => handleUpdateTeamRosterPosition(r.playerId, e.target.value)}
@@ -580,7 +609,7 @@ export default function TeamEdit() {
                 <div className="flex flex-row gap-3 justify-end pt-6 border-t border-gray-200">
                     <button
                         onClick={handleSaveAndReturn}
-                        className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white text-xs font-bold uppercase transition-colors cursor-pointer shadow-sm"
+                        className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white text-xs font-bold uppercase transition-colors cursor-pointer shadow-sm w-full sm:w-auto"
                     >
                         Save Changes
                     </button>

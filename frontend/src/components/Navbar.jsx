@@ -54,7 +54,7 @@ export default function Navbar() {
         <header className="relative w-full z-50 select-none">
             <div className="h-1 w-full bg-wildcats-red" />
 
-            <nav className="bg-wildcats-blue border-b border-white/10 text-white shadow-lg">
+            <nav className="bg-wildcats-blue border-b border-white/10 text-white shadow-lg relative">
                 <div className="relative max-w-[1600px] mx-auto px-3 sm:px-6 md:px-10 flex items-center justify-between h-20">
 
                     <NavLink to="/" className="flex items-center gap-1.5 sm:gap-2 h-full py-2 cursor-pointer z-10 shrink-0">
@@ -69,7 +69,6 @@ export default function Navbar() {
                         </div>
                     </NavLink>
 
-                    {/* Desktop Navigation */}
                     <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center space-x-4 text-[10px] uppercase tracking-[0.24em] font-sans font-semibold">
                         {links.map((link, index) => (
                             <React.Fragment key={link.name}>
@@ -175,7 +174,7 @@ export default function Navbar() {
                 </div>
 
                 {open && (
-                    <div className="lg:hidden border-t border-white/10 bg-wildcats-blue px-6 py-4 flex flex-col space-y-3 shadow-2xl font-sans">
+                    <div className="lg:hidden absolute top-full left-0 w-full border-t border-white/10 bg-wildcats-blue px-6 py-4 flex flex-col space-y-3 shadow-2xl font-sans z-50">
                         <div className="flex flex-col space-y-1">
                             {links.map((link) => (
                                 <NavLink

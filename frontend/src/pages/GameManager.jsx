@@ -307,13 +307,13 @@ export default function GameManager() {
 
     return (
         <div className="max-w-5xl mx-auto p-4 sm:p-6 font-sans">
-            <div className="flex items-center justify-between gap-4 mb-6">
-                <h1 className="text-lg sm:text-2xl font-bold font-wildcats text-wildcats-blue uppercase shrink-0">
+            <div className="flex items-center justify-between gap-2 mb-6">
+                <h1 className="text-sm min-[380px]:text-base sm:text-2xl font-bold font-wildcats text-wildcats-blue uppercase shrink truncate">
                     Game Manager
                 </h1>
                 <button
                     onClick={() => navigate('/admin')}
-                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold uppercase tracking-wider border border-gray-300 transition-colors cursor-pointer text-center shrink-0"
+                    className="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-[10px] min-[380px]:text-[11px] sm:text-xs font-bold uppercase tracking-wider border border-gray-300 transition-colors cursor-pointer text-center shrink-0 whitespace-nowrap"
                 >
                     &larr; Back to Dashboard
                 </button>
@@ -351,7 +351,7 @@ export default function GameManager() {
                                 required
                                 value={formData.date}
                                 onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-wildcats-blue"
+                                className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-wildcats-blue bg-white"
                             />
                         </div>
                         <div>
@@ -361,7 +361,7 @@ export default function GameManager() {
                                 required
                                 value={formData.time}
                                 onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                                className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-wildcats-blue"
+                                className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-wildcats-blue bg-white"
                             />
                         </div>
                         <div>
@@ -369,7 +369,7 @@ export default function GameManager() {
                             <select
                                 value={formData.gameType}
                                 onChange={(e) => setFormData({ ...formData, gameType: e.target.value })}
-                                className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-wildcats-blue truncate"
+                                className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-wildcats-blue truncate bg-white"
                             >
                                 {Object.entries(groupedGameTypes).map(([category, options]) => (
                                     <optgroup key={category} label={category}>
@@ -390,7 +390,7 @@ export default function GameManager() {
                                 value={formData.venue}
                                 onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
                                 placeholder="Whitley Bay Ice Rink"
-                                className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-wildcats-blue"
+                                className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-wildcats-blue bg-white"
                             />
                         </div>
                         <div>
@@ -400,7 +400,7 @@ export default function GameManager() {
                                 value={formData.buihaLink}
                                 onChange={(e) => setFormData({ ...formData, buihaLink: e.target.value })}
                                 placeholder="https://buiha.org.uk/..."
-                                className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-wildcats-blue"
+                                className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-wildcats-blue bg-white"
                             />
                         </div>
                     </div>

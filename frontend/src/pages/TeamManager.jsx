@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 
+const DEFAULT_PROFILE_PIC = "https://buiha.org.uk/assets/img/profile/player-newcastle.jpg";
+
 export default function TeamManager() {
     const [teams, setTeams] = useState([]);
     const [players, setPlayers] = useState([]);
@@ -35,13 +37,13 @@ export default function TeamManager() {
 
     return (
         <div className="max-w-5xl mx-auto p-4 sm:p-6 font-sans">
-            <div className="flex items-center justify-between gap-4 mb-6">
-                <h1 className="text-lg sm:text-2xl font-bold font-wildcats text-wildcats-blue uppercase shrink-0">
+            <div className="flex items-center justify-between gap-2 mb-6">
+                <h1 className="text-sm min-[380px]:text-base sm:text-2xl font-bold font-wildcats text-wildcats-blue uppercase shrink truncate">
                     Team Manager
                 </h1>
                 <button
                     onClick={() => navigate('/admin')}
-                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold uppercase tracking-wider border border-gray-300 transition-colors cursor-pointer text-center shrink-0"
+                    className="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-[10px] min-[380px]:text-[11px] sm:text-xs font-bold uppercase tracking-wider border border-gray-300 transition-colors cursor-pointer text-center shrink-0 whitespace-nowrap"
                 >
                     &larr; Back to Dashboard
                 </button>
@@ -73,57 +75,69 @@ export default function TeamManager() {
                                             </span>
                                         </div>
 
-                                        <div className="flex flex-col gap-1.5 pt-1 max-w-lg">
+                                        <div className="flex flex-col items-start gap-1.5 pt-1">
                                             {captainObjs.length > 0 && (
-                                                <div className="flex items-center bg-gray-50 border border-gray-200 px-3 py-1.5 gap-3">
-                                                    <span className="text-[10px] font-bold text-gray-400 uppercase w-24 sm:w-32 shrink-0">Captain:</span>
-                                                    <div className="flex items-center gap-4 flex-wrap">
-                                                        {captainObjs.map(cap => (
-                                                            <div key={cap._id} className="flex items-center gap-1.5">
-                                                                {cap.profilePic ? (
-                                                                    <img src={cap.profilePic} alt="" className="w-6 h-6 object-cover rounded-full border border-gray-300 shrink-0" />
-                                                                ) : (
-                                                                    <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0">#{cap.number}</div>
-                                                                )}
-                                                                <span className="text-xs font-bold text-gray-800 uppercase">{cap.name}</span>
-                                                            </div>
-                                                        ))}
+                                                <div className="inline-flex items-center bg-gray-50 border border-gray-200 px-3 py-1.5 gap-2">
+                                                    <span className="text-[10px] font-bold text-gray-400 uppercase w-20 sm:w-24 text-left shrink-0">Captain:</span>
+                                                    <div className="flex items-center gap-x-4 gap-y-1 flex-wrap">
+                                                        {captainObjs.map(cap => {
+                                                            const profilePic = cap.profilePic || DEFAULT_PROFILE_PIC;
+                                                            return (
+                                                                <div key={cap._id} className="flex items-center gap-1.5">
+                                                                    <img
+                                                                        src={profilePic}
+                                                                        alt=""
+                                                                        onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
+                                                                        className="w-6 h-6 object-cover rounded-full border border-gray-300 shrink-0"
+                                                                    />
+                                                                    <span className="text-xs font-bold text-gray-800 uppercase">{cap.name}</span>
+                                                                </div>
+                                                            );
+                                                        })}
                                                     </div>
                                                 </div>
                                             )}
 
                                             {assistantObjs.length > 0 && (
-                                                <div className="flex items-center bg-gray-50 border border-gray-200 px-3 py-1.5 gap-3">
-                                                    <span className="text-[10px] font-bold text-gray-400 uppercase w-24 sm:w-32 shrink-0">Assistant:</span>
-                                                    <div className="flex items-center gap-4 flex-wrap">
-                                                        {assistantObjs.map(a => (
-                                                            <div key={a._id} className="flex items-center gap-1.5">
-                                                                {a.profilePic ? (
-                                                                    <img src={a.profilePic} alt="" className="w-6 h-6 object-cover rounded-full border border-gray-300 shrink-0" />
-                                                                ) : (
-                                                                    <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0">#{a.number}</div>
-                                                                )}
-                                                                <span className="text-xs font-bold text-gray-800 uppercase">{a.name}</span>
-                                                            </div>
-                                                        ))}
+                                                <div className="inline-flex items-center bg-gray-50 border border-gray-200 px-3 py-1.5 gap-2">
+                                                    <span className="text-[10px] font-bold text-gray-400 uppercase w-20 sm:w-24 text-left shrink-0">Assistant:</span>
+                                                    <div className="flex items-center gap-x-4 gap-y-1 flex-wrap">
+                                                        {assistantObjs.map(a => {
+                                                            const profilePic = a.profilePic || DEFAULT_PROFILE_PIC;
+                                                            return (
+                                                                <div key={a._id} className="flex items-center gap-1.5">
+                                                                    <img
+                                                                        src={profilePic}
+                                                                        alt=""
+                                                                        onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
+                                                                        className="w-6 h-6 object-cover rounded-full border border-gray-300 shrink-0"
+                                                                    />
+                                                                    <span className="text-xs font-bold text-gray-800 uppercase">{a.name}</span>
+                                                                </div>
+                                                            );
+                                                        })}
                                                     </div>
                                                 </div>
                                             )}
 
                                             {coachObjs.length > 0 && (
-                                                <div className="flex items-center bg-gray-50 border border-gray-200 px-3 py-1.5 gap-3">
-                                                    <span className="text-[10px] font-bold text-gray-400 uppercase w-24 sm:w-32 shrink-0">Coach:</span>
-                                                    <div className="flex items-center gap-4 flex-wrap">
-                                                        {coachObjs.map(c => (
-                                                            <div key={c._id} className="flex items-center gap-1.5">
-                                                                {c.profilePic ? (
-                                                                    <img src={c.profilePic} alt="" className="w-6 h-6 object-cover rounded-full border border-gray-300 shrink-0" />
-                                                                ) : (
-                                                                    <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0">#{c.number}</div>
-                                                                )}
-                                                                <span className="text-xs font-bold text-gray-800 uppercase">{c.name}</span>
-                                                            </div>
-                                                        ))}
+                                                <div className="inline-flex items-center bg-gray-50 border border-gray-200 px-3 py-1.5 gap-2">
+                                                    <span className="text-[10px] font-bold text-gray-400 uppercase w-20 sm:w-24 text-left shrink-0">Coach:</span>
+                                                    <div className="flex items-center gap-x-4 gap-y-1 flex-wrap">
+                                                        {coachObjs.map(c => {
+                                                            const profilePic = c.profilePic || DEFAULT_PROFILE_PIC;
+                                                            return (
+                                                                <div key={c._id} className="flex items-center gap-1.5">
+                                                                    <img
+                                                                        src={profilePic}
+                                                                        alt=""
+                                                                        onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
+                                                                        className="w-6 h-6 object-cover rounded-full border border-gray-300 shrink-0"
+                                                                    />
+                                                                    <span className="text-xs font-bold text-gray-800 uppercase">{c.name}</span>
+                                                                </div>
+                                                            );
+                                                        })}
                                                     </div>
                                                 </div>
                                             )}

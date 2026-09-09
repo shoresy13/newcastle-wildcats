@@ -27,15 +27,15 @@ router.post('/', protect, admin, async (req, res) => {
     try {
         const { name, number, team, position, buihaLink } = req.body;
 
-        if (!name || !number) {
-            return res.status(400).json({ message: 'Name and number are required' });
+        if (!name) {
+            return res.status(400).json({ message: 'Name is required' });
         }
 
         const profilePic = getProfilePicUrl(buihaLink);
 
         const newPlayer = new Player({
-            name: name.toUpperCase(),
-            number,
+            name: name,
+            number: number !== '' && number != null ? Number(number) : null,
             team: team ? team.toUpperCase() : '',
             position: position ? position.toUpperCase() : '-',
             buihaLink: buihaLink || '',
@@ -55,8 +55,8 @@ router.put('/:id', protect, admin, async (req, res) => {
         const { name, number, team, position, buihaLink } = req.body;
 
         const updatedFields = {
-            name: name ? name.toUpperCase() : undefined,
-            number,
+            name: name ? name : undefined,
+            number: number !== undefined ? (number === '' || number == null ? null : Number(number)) : undefined,
             team: team !== undefined ? team.toUpperCase() : undefined,
             position: position ? position.toUpperCase() : undefined,
             buihaLink: buihaLink !== undefined ? buihaLink : undefined,

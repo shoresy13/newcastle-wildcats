@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 
+const DEFAULT_PROFILE_PIC = "https://buiha.org.uk/assets/img/profile/player-newcastle.jpg";
+
 const getProfilePicUrl = (buihaLink) => {
-    if (!buihaLink) return '';
+    if (!buihaLink) return DEFAULT_PROFILE_PIC;
     const match = buihaLink.match(/\/player\/(\d+)/);
     if (match && match[1]) {
         return `https://buiha.org.uk/assets/img/profile/15/player-${match[1]}.jpg`;
     }
-    return '';
+    return DEFAULT_PROFILE_PIC;
 };
 
 export default function PlayerManager() {
@@ -43,10 +45,11 @@ export default function PlayerManager() {
 
     const handleAddPlayer = async (e) => {
         e.preventDefault();
-        if (!newPlayer.name || !newPlayer.number) return;
+        if (!newPlayer.name) return;
 
         const payload = {
             ...newPlayer,
+            number: newPlayer.number === '' ? null : Number(newPlayer.number),
             profilePic: getProfilePicUrl(newPlayer.buihaLink)
         };
 
@@ -74,15 +77,16 @@ export default function PlayerManager() {
 
     const startEditing = (player) => {
         setEditingPlayerId(player._id);
-        setEditFormData({ ...player });
+        setEditFormData({ ...player, number: player.number ?? '' });
         setMessage({ text: '', isError: false });
     };
 
     const handleUpdatePlayer = async (playerId) => {
-        if (!editFormData.name || !editFormData.number) return;
+        if (!editFormData.name) return;
 
         const payload = {
             ...editFormData,
+            number: editFormData.number === '' ? null : Number(editFormData.number),
             profilePic: getProfilePicUrl(editFormData.buihaLink)
         };
 
@@ -129,18 +133,18 @@ export default function PlayerManager() {
 
     const filteredPlayers = players.filter(p => {
         const q = searchQuery.toLowerCase();
-        return p.name.toLowerCase().includes(q) || String(p.number).includes(q);
+        return p.name.toLowerCase().includes(q) || String(p.number || '').includes(q);
     });
 
     return (
         <div className="max-w-5xl mx-auto p-4 sm:p-6 font-sans">
-            <div className="flex items-center justify-between gap-4 mb-6">
-                <h1 className="text-lg sm:text-2xl font-bold font-wildcats text-wildcats-blue uppercase shrink-0">
+            <div className="flex items-center justify-between gap-2 mb-6">
+                <h1 className="text-sm min-[380px]:text-base sm:text-2xl font-bold font-wildcats text-wildcats-blue uppercase shrink truncate">
                     Player Manager
                 </h1>
                 <button
                     onClick={() => navigate('/admin')}
-                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold uppercase tracking-wider border border-gray-300 transition-colors cursor-pointer text-center shrink-0"
+                    className="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-[10px] min-[380px]:text-[11px] sm:text-xs font-bold uppercase tracking-wider border border-gray-300 transition-colors cursor-pointer text-center shrink-0 whitespace-nowrap"
                 >
                     &larr; Back to Dashboard
                 </button>
@@ -163,11 +167,10 @@ export default function PlayerManager() {
                             <label className="block text-[10px] font-bold uppercase text-gray-500 mb-1">Number</label>
                             <input
                                 type="number"
-                                required
                                 value={newPlayer.number}
                                 onChange={(e) => setNewPlayer({ ...newPlayer, number: e.target.value })}
                                 className="w-full border border-gray-300 p-2 text-xs outline-none focus:border-wildcats-blue text-center font-bold bg-white"
-                                placeholder="0"
+                                placeholder="-"
                             />
                         </div>
                         <div className="sm:col-span-4">
@@ -177,7 +180,7 @@ export default function PlayerManager() {
                                 required
                                 value={newPlayer.name}
                                 onChange={(e) => setNewPlayer({ ...newPlayer, name: e.target.value })}
-                                className="w-full border border-gray-300 p-2 text-xs outline-none focus:border-wildcats-blue font-bold uppercase bg-white"
+                                className="w-full border border-gray-300 p-2 text-xs outline-none focus:border-wildcats-blue font-bold bg-white"
                                 placeholder="Enter Name"
                             />
                         </div>
@@ -213,7 +216,7 @@ export default function PlayerManager() {
                                 placeholder="Search by name or number"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full border border-gray-300 p-1.5 text-xs outline-none focus:border-wildcats-blue uppercase bg-white font-semibold"
+                                className="w-full border border-gray-300 p-1.5 text-xs outline-none focus:border-wildcats-blue bg-white font-semibold"
                             />
                         </div>
                     </div>
@@ -240,15 +243,17 @@ export default function PlayerManager() {
                                                         value={editFormData.number}
                                                         onChange={(e) => setEditFormData({ ...editFormData, number: e.target.value })}
                                                         className="w-full border border-gray-300 p-1.5 text-xs bg-white text-center font-bold outline-none"
+                                                        placeholder="-"
                                                     />
                                                 </div>
                                                 <div className="sm:col-span-4">
                                                     <label className="block text-[9px] font-bold uppercase text-gray-500 mb-0.5">Name</label>
                                                     <input
                                                         type="text"
+                                                        required
                                                         value={editFormData.name}
                                                         onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
-                                                        className="w-full border border-gray-300 p-1.5 text-xs bg-white font-bold uppercase outline-none"
+                                                        className="w-full border border-gray-300 p-1.5 text-xs bg-white font-bold outline-none"
                                                     />
                                                 </div>
                                                 <div className="sm:col-span-6">
@@ -284,20 +289,32 @@ export default function PlayerManager() {
                                 return (
                                     <div key={player._id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white border border-gray-200 p-3 gap-2 shadow-xs">
                                         <div className="flex items-center gap-3.5">
-                                            {player.profilePic ? (
-                                                <img src={player.profilePic} alt="" className="w-10 h-10 object-cover rounded-full bg-gray-100 border border-gray-200 shrink-0" />
-                                            ) : (
-                                                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-xs font-bold text-gray-500 border border-gray-200 shrink-0">
-                                                    #{player.number}
-                                                </div>
-                                            )}
+                                            <img
+                                                src={player.profilePic || DEFAULT_PROFILE_PIC}
+                                                alt=""
+                                                className="w-10 h-10 object-cover rounded-full bg-gray-100 border border-gray-200 shrink-0"
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.src = DEFAULT_PROFILE_PIC;
+                                                }}
+                                            />
                                             <div>
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-xs font-bold text-wildcats-red">#{player.number}</span>
-                                                    <span className="text-xs font-bold text-gray-900 uppercase">{player.name}</span>
+                                                    {player.number ? (
+                                                        <span className="text-xs font-bold text-wildcats-red">#{player.number}</span>
+                                                    ) : (
+                                                        <span className="text-xs font-bold text-gray-400">—</span>
+                                                    )}
+                                                    <span className="text-xs font-bold text-gray-900">{player.name}</span>
                                                 </div>
                                                 <span className="text-[10px] text-gray-400 truncate block max-w-[250px] sm:max-w-[400px]">
-                                                    {player.buihaLink || 'No BUIHA profile link'}
+                                                    {player.buihaLink ? (
+                                                        <a href={player.buihaLink} target="_blank" rel="noreferrer" className="hover:underline text-wildcats-blue">
+                                                            {player.buihaLink}
+                                                        </a>
+                                                    ) : (
+                                                        'No BUIHA profile link'
+                                                    )}
                                                 </span>
                                             </div>
                                         </div>
