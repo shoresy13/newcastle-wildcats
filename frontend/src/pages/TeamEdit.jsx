@@ -175,6 +175,14 @@ export default function TeamEdit() {
         return p.name.toLowerCase().includes(query) || String(p.number || '').includes(query);
     });
 
+    const searchedGlobalPlayersForCoach = players.filter(p => {
+        const query = coachSearchQuery.toLowerCase();
+        return (
+            (p.name.toLowerCase().includes(query) || String(p.number || '').includes(query)) &&
+            !(editFormData.coaches || []).includes(p.name)
+        );
+    });
+
     return (
         <div className="max-w-4xl mx-auto p-4 sm:p-8 font-sans">
             <div className="flex items-center justify-between gap-2 mb-6">
@@ -455,44 +463,42 @@ export default function TeamEdit() {
                             {isAddingCoach ? (
                                 <div className="bg-gray-50 border border-gray-300 p-3 space-y-2">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-[10px] font-bold uppercase text-gray-500">Search Team Roster for Coach</span>
+                                        <span className="text-[10px] font-bold uppercase text-gray-500">Search Global Members for Coach</span>
                                         <button type="button" onClick={() => setIsAddingCoach(false)} className="text-[10px] text-gray-500 uppercase underline cursor-pointer">Cancel</button>
                                     </div>
                                     <input
                                         type="text"
-                                        placeholder="Type player name"
+                                        placeholder="Type player name or number"
                                         value={coachSearchQuery}
                                         onChange={(e) => setCoachSearchQuery(e.target.value)}
                                         className="w-full border border-gray-300 p-2.5 text-xs bg-white uppercase font-semibold outline-none"
                                     />
                                     <div className="max-h-36 overflow-y-auto bg-white border border-gray-200 divide-y">
-                                        {teamRoster.filter(r => r.name.toLowerCase().includes(coachSearchQuery.toLowerCase()) && !(editFormData.coaches || []).includes(r.name)).length === 0 ? (
-                                            <p className="p-2 text-xs text-gray-400 italic">No available roster members</p>
+                                        {searchedGlobalPlayersForCoach.length === 0 ? (
+                                            <p className="p-2 text-xs text-gray-400 italic">No global members found</p>
                                         ) : (
-                                            teamRoster
-                                                .filter(r => r.name.toLowerCase().includes(coachSearchQuery.toLowerCase()) && !(editFormData.coaches || []).includes(r.name))
-                                                .map(r => {
-                                                    const matchedPlayer = players.find(p => p._id === r.playerId);
-                                                    const profilePic = matchedPlayer?.profilePic || DEFAULT_PROFILE_PIC;
-                                                    return (
-                                                        <div key={r.playerId} className="flex items-center justify-between p-2.5 hover:bg-gray-50 cursor-pointer" onClick={() => {
-                                                            const updatedCoaches = [...(editFormData.coaches || []), r.name];
-                                                            handleFieldChange('coaches', updatedCoaches);
-                                                            setIsAddingCoach(false);
-                                                        }}>
-                                                            <div className="flex items-center gap-2">
-                                                                <img
-                                                                    src={profilePic}
-                                                                    alt=""
-                                                                    onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
-                                                                    className="w-6 h-6 object-cover rounded-full border border-gray-300 shrink-0"
-                                                                />
-                                                                <span className="text-xs font-bold uppercase">{r.number ? `#${r.number} ` : '— '}{r.name}</span>
-                                                            </div>
-                                                            <span className="text-[10px] text-wildcats-blue font-bold uppercase">Add</span>
+                                            searchedGlobalPlayersForCoach.map(p => {
+                                                const profilePic = p.profilePic || DEFAULT_PROFILE_PIC;
+                                                return (
+                                                    <div key={p._id} className="flex items-center justify-between p-2.5 hover:bg-gray-50 cursor-pointer" onClick={() => {
+                                                        const updatedCoaches = [...(editFormData.coaches || []), p.name];
+                                                        handleFieldChange('coaches', updatedCoaches);
+                                                        setIsAddingCoach(false);
+                                                        setCoachSearchQuery('');
+                                                    }}>
+                                                        <div className="flex items-center gap-2">
+                                                            <img
+                                                                src={profilePic}
+                                                                alt=""
+                                                                onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
+                                                                className="w-6 h-6 object-cover rounded-full border border-gray-300 shrink-0"
+                                                            />
+                                                            <span className="text-xs font-bold uppercase">{p.number ? `#${p.number} ` : '— '}{p.name}</span>
                                                         </div>
-                                                    );
-                                                })
+                                                        <span className="text-[10px] text-wildcats-blue font-bold uppercase">Add</span>
+                                                    </div>
+                                                );
+                                            })
                                         )}
                                     </div>
                                 </div>
