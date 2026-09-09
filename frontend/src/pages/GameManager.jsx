@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {  BUIHA_TEAMS } from '../utils/buihaTeams';
+import { BUIHA_TEAMS } from '../utils/buihaTeams';
 import { GAME_TYPES } from '../utils/gameTypes';
 import { formatGameTypeLabel } from '../utils/formatters';
 import { useNavigate } from 'react-router';
@@ -307,13 +307,13 @@ export default function GameManager() {
 
     return (
         <div className="max-w-5xl mx-auto p-4 sm:p-6 font-sans">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                <h1 className="text-xl sm:text-2xl font-bold font-wildcats text-wildcats-blue uppercase text-center sm:text-left">
+            <div className="flex items-center justify-between gap-4 mb-6">
+                <h1 className="text-lg sm:text-2xl font-bold font-wildcats text-wildcats-blue uppercase shrink-0">
                     Game Manager
                 </h1>
                 <button
                     onClick={() => navigate('/admin')}
-                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold uppercase tracking-wider border border-gray-300 transition-colors cursor-pointer text-center"
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold uppercase tracking-wider border border-gray-300 transition-colors cursor-pointer text-center shrink-0"
                 >
                     &larr; Back to Dashboard
                 </button>

@@ -35,13 +35,13 @@ export default function TeamManager() {
 
     return (
         <div className="max-w-5xl mx-auto p-4 sm:p-6 font-sans">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                <h1 className="text-xl sm:text-2xl font-bold font-wildcats text-wildcats-blue uppercase text-center sm:text-left">
+            <div className="flex items-center justify-between gap-4 mb-6">
+                <h1 className="text-lg sm:text-2xl font-bold font-wildcats text-wildcats-blue uppercase shrink-0">
                     Team Manager
                 </h1>
                 <button
                     onClick={() => navigate('/admin')}
-                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold uppercase tracking-wider border border-gray-300 transition-colors cursor-pointer text-center"
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold uppercase tracking-wider border border-gray-300 transition-colors cursor-pointer text-center shrink-0"
                 >
                     &larr; Back to Dashboard
                 </button>
@@ -76,7 +76,7 @@ export default function TeamManager() {
                                         <div className="flex flex-col gap-1.5 pt-1 max-w-lg">
                                             {captainObjs.length > 0 && (
                                                 <div className="flex items-center bg-gray-50 border border-gray-200 px-3 py-1.5 gap-3">
-                                                    <span className="text-[10px] font-bold text-gray-400 uppercase w-32 shrink-0">Captain:</span>
+                                                    <span className="text-[10px] font-bold text-gray-400 uppercase w-24 sm:w-32 shrink-0">Captain:</span>
                                                     <div className="flex items-center gap-4 flex-wrap">
                                                         {captainObjs.map(cap => (
                                                             <div key={cap._id} className="flex items-center gap-1.5">
@@ -94,7 +94,7 @@ export default function TeamManager() {
 
                                             {assistantObjs.length > 0 && (
                                                 <div className="flex items-center bg-gray-50 border border-gray-200 px-3 py-1.5 gap-3">
-                                                    <span className="text-[10px] font-bold text-gray-400 uppercase w-32 shrink-0">Assistant Captain:</span>
+                                                    <span className="text-[10px] font-bold text-gray-400 uppercase w-24 sm:w-32 shrink-0">Assistant:</span>
                                                     <div className="flex items-center gap-4 flex-wrap">
                                                         {assistantObjs.map(a => (
                                                             <div key={a._id} className="flex items-center gap-1.5">
@@ -112,7 +112,7 @@ export default function TeamManager() {
 
                                             {coachObjs.length > 0 && (
                                                 <div className="flex items-center bg-gray-50 border border-gray-200 px-3 py-1.5 gap-3">
-                                                    <span className="text-[10px] font-bold text-gray-400 uppercase w-32 shrink-0">Coach:</span>
+                                                    <span className="text-[10px] font-bold text-gray-400 uppercase w-24 sm:w-32 shrink-0">Coach:</span>
                                                     <div className="flex items-center gap-4 flex-wrap">
                                                         {coachObjs.map(c => (
                                                             <div key={c._id} className="flex items-center gap-1.5">

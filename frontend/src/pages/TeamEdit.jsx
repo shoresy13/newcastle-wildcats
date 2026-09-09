@@ -172,16 +172,16 @@ export default function TeamEdit() {
 
     return (
         <div className="max-w-4xl mx-auto p-4 sm:p-8 font-sans">
-            <div className="flex items-center justify-between mb-6">
-                <button
-                    onClick={() => navigate('/admin/team-manager')}
-                    className="text-xs font-bold uppercase text-wildcats-blue hover:underline cursor-pointer"
-                >
-                    &larr; Back to Teams Overview
-                </button>
-                <h1 className="text-lg sm:text-xl font-bold font-wildcats text-gray-800 uppercase tracking-wide">
+            <div className="flex items-center justify-between gap-4 mb-6">
+                <h1 className="text-lg sm:text-xl font-bold font-wildcats text-gray-800 uppercase tracking-wide shrink-0">
                     Editing Team {editFormData.id}
                 </h1>
+                <button
+                    onClick={() => navigate('/admin/team-manager')}
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold uppercase tracking-wider border border-gray-300 transition-colors cursor-pointer text-center shrink-0"
+                >
+                    &larr; Back to Team Manager
+                </button>
             </div>
 
             {message.text && (
@@ -276,7 +276,7 @@ export default function TeamEdit() {
                                     </div>
                                     <input
                                         type="text"
-                                        placeholder="Type player name..."
+                                        placeholder="Type player name"
                                         value={captainSearchQuery}
                                         onChange={(e) => setCaptainSearchQuery(e.target.value)}
                                         className="w-full border border-gray-300 p-2.5 text-xs bg-white uppercase font-semibold outline-none"
@@ -363,7 +363,7 @@ export default function TeamEdit() {
                                     </div>
                                     <input
                                         type="text"
-                                        placeholder="Type player name..."
+                                        placeholder="Type player name"
                                         value={assistantSearchQuery}
                                         onChange={(e) => setAssistantSearchQuery(e.target.value)}
                                         className="w-full border border-gray-300 p-2.5 text-xs bg-white uppercase font-semibold outline-none"
@@ -450,7 +450,7 @@ export default function TeamEdit() {
                                     </div>
                                     <input
                                         type="text"
-                                        placeholder="Type player name..."
+                                        placeholder="Type player name"
                                         value={coachSearchQuery}
                                         onChange={(e) => setCoachSearchQuery(e.target.value)}
                                         className="w-full border border-gray-300 p-2.5 text-xs bg-white uppercase font-semibold outline-none"
@@ -504,7 +504,7 @@ export default function TeamEdit() {
                             <label className="block text-[10px] font-bold uppercase text-gray-500">Search & Add Member to Roster</label>
                             <input
                                 type="text"
-                                placeholder="Search global members by name or number..."
+                                placeholder="Search global members by name or number"
                                 value={rosterSearchQuery}
                                 onChange={(e) => setRosterSearchQuery(e.target.value)}
                                 className="w-full border border-gray-300 p-2.5 text-xs bg-white outline-none focus:border-wildcats-blue uppercase font-semibold"
@@ -582,7 +582,7 @@ export default function TeamEdit() {
                         onClick={handleSaveAndReturn}
                         className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white text-xs font-bold uppercase transition-colors cursor-pointer shadow-sm"
                     >
-                        Save & Return to Overview
+                        Save Changes
                     </button>
                 </div>
             </div>
