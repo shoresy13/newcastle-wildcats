@@ -75,11 +75,11 @@ export default function TeamManager() {
                                             </span>
                                         </div>
 
-                                        <div className="flex flex-col items-start gap-1.5 pt-1">
+                                        <div className="flex flex-col items-stretch gap-1.5 pt-1 w-full">
                                             {captainObjs.length > 0 && (
-                                                <div className="inline-flex items-center bg-gray-50 border border-gray-200 px-3 py-1.5 gap-2">
+                                                <div className="flex items-center bg-gray-50 border border-gray-200 px-3 py-1.5 gap-2 w-full">
                                                     <span className="text-[10px] font-bold text-gray-400 uppercase w-20 sm:w-24 text-left shrink-0">Captain:</span>
-                                                    <div className="flex items-center gap-x-4 gap-y-1 flex-wrap">
+                                                    <div className="flex items-center gap-x-4 gap-y-1 flex-wrap flex-1">
                                                         {captainObjs.map(cap => {
                                                             const profilePic = cap.profilePic || DEFAULT_PROFILE_PIC;
                                                             return (
@@ -99,9 +99,9 @@ export default function TeamManager() {
                                             )}
 
                                             {assistantObjs.length > 0 && (
-                                                <div className="inline-flex items-center bg-gray-50 border border-gray-200 px-3 py-1.5 gap-2">
+                                                <div className="flex items-center bg-gray-50 border border-gray-200 px-3 py-1.5 gap-2 w-full">
                                                     <span className="text-[10px] font-bold text-gray-400 uppercase w-20 sm:w-24 text-left shrink-0">Assistant:</span>
-                                                    <div className="flex items-center gap-x-4 gap-y-1 flex-wrap">
+                                                    <div className="flex items-center gap-x-4 gap-y-1 flex-wrap flex-1">
                                                         {assistantObjs.map(a => {
                                                             const profilePic = a.profilePic || DEFAULT_PROFILE_PIC;
                                                             return (
@@ -121,9 +121,9 @@ export default function TeamManager() {
                                             )}
 
                                             {coachObjs.length > 0 && (
-                                                <div className="inline-flex items-center bg-gray-50 border border-gray-200 px-3 py-1.5 gap-2">
+                                                <div className="flex items-center bg-gray-50 border border-gray-200 px-3 py-1.5 gap-2 w-full">
                                                     <span className="text-[10px] font-bold text-gray-400 uppercase w-20 sm:w-24 text-left shrink-0">Coach:</span>
-                                                    <div className="flex items-center gap-x-4 gap-y-1 flex-wrap">
+                                                    <div className="flex items-center gap-x-4 gap-y-1 flex-wrap flex-1">
                                                         {coachObjs.map(c => {
                                                             const profilePic = c.profilePic || DEFAULT_PROFILE_PIC;
                                                             return (
