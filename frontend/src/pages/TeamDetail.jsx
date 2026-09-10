@@ -91,9 +91,9 @@ export default function TeamDetail() {
         if (wildcatScore > oppScore) {
             return { text: 'WIN', className: 'border-green-600 text-green-700 bg-green-50' };
         } else if (wildcatScore < oppScore) {
-            return { text: 'LOSS', className: 'border-red-600 text-red-700 bg-red-50' };
+            return { text: 'LOSS', className: 'border-red-600 text-red-700 bg-green-50' };
         } else {
-            return { text: 'DRAW', className: 'border-yellow-600 text-yellow-700 bg-yellow-50' };
+            return { text: 'DRAW', className: 'border-yellow-600 text-yellow-700 bg-green-50' };
         }
     };
 
@@ -143,7 +143,24 @@ export default function TeamDetail() {
     const assistantObjs = assistantNames.map(name => getPlayerObjByName(name)).filter(Boolean);
     const coachObjs = coachNames.map(name => getPlayerObjByName(name)).filter(Boolean);
 
-    const sortedRoster = [...roster].sort((a, b) => {
+    const leadershipIds = new Set([
+        ...captainObjs.map(p => p._id),
+        ...assistantObjs.map(p => p._id),
+        ...coachObjs.map(p => p._id)
+    ]);
+
+    const leadershipNames = new Set([
+        ...captainNames,
+        ...assistantNames,
+        ...coachNames
+    ]);
+
+    const filteredRoster = roster.filter(member => {
+        if (leadershipIds.has(member.playerId)) return false;
+        return !leadershipNames.has(member.name);
+    });
+
+    const sortedRoster = [...filteredRoster].sort((a, b) => {
         const posA = POSITION_ORDER[a.position || '-'] || 5;
         const posB = POSITION_ORDER[b.position || '-'] || 5;
         return posA - posB;
@@ -308,132 +325,130 @@ export default function TeamDetail() {
                 </div>
             )}
 
-            {(captainObjs.length > 0 || assistantObjs.length > 0 || coachObjs.length > 0) && (
-                <div className="space-y-3">
-                    <h2 className="text-sm font-bold font-wildcats text-wildcats-blue uppercase tracking-wider border-b border-gray-200 pb-1.5">
-                        Team Leadership
-                    </h2>
+            <div className="space-y-3">
+                <h2 className="text-sm font-bold font-wildcats text-wildcats-blue uppercase tracking-wider border-b border-gray-200 pb-1.5">
+                    Team Leadership
+                </h2>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-white border border-gray-200 p-3 flex flex-col space-y-2">
-                            <span className="text-[10px] font-bold text-wildcats-red uppercase tracking-wider border-b border-gray-100 pb-1">
-                                Captain
-                            </span>
-                            {captainObjs.length > 0 ? (
-                                captainObjs.map(cap => {
-                                    const profilePic = cap.profilePic || DEFAULT_PROFILE_PIC;
-                                    return (
-                                        <div
-                                            key={cap._id}
-                                            onClick={() => handlePlayerClick(cap)}
-                                            className="border border-gray-100 hover:border-wildcats-blue hover:shadow-xs transition-all p-2.5 flex items-center justify-between gap-3 cursor-pointer group bg-gray-50/50"
-                                        >
-                                            <div className="flex items-center gap-3 min-w-0">
-                                                <img
-                                                    src={profilePic}
-                                                    alt=""
-                                                    onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
-                                                    className="w-9 h-9 object-cover rounded-full border border-gray-300 shrink-0"
-                                                />
-                                                <div className="min-w-0">
-                                                    <div className="flex items-center gap-2 flex-wrap">
-                                                        <span className="text-[10px] font-bold text-gray-400 shrink-0">
-                                                            {cap.number ? `#${cap.number}` : '—'}
-                                                        </span>
-                                                        <h4 className="text-xs font-bold text-gray-900 group-hover:text-wildcats-blue uppercase tracking-wide truncate">
-                                                            {cap.name}
-                                                        </h4>
-                                                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-white border border-gray-200 p-3 flex flex-col space-y-2">
+                        <span className="text-[10px] font-bold text-wildcats-red uppercase tracking-wider border-b border-gray-100 pb-1">
+                            Captain
+                        </span>
+                        {captainObjs.length > 0 ? (
+                            captainObjs.map(cap => {
+                                const profilePic = cap.profilePic || DEFAULT_PROFILE_PIC;
+                                return (
+                                    <div
+                                        key={cap._id}
+                                        onClick={() => handlePlayerClick(cap)}
+                                        className="border border-gray-100 hover:border-wildcats-blue hover:shadow-xs transition-all p-2.5 flex items-center justify-between gap-3 cursor-pointer group bg-gray-50/50"
+                                    >
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <img
+                                                src={profilePic}
+                                                alt=""
+                                                onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
+                                                className="w-9 h-9 object-cover rounded-full border border-gray-300 shrink-0"
+                                            />
+                                            <div className="min-w-0">
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <span className="text-[10px] font-bold text-gray-400 shrink-0">
+                                                        {cap.number ? `#${cap.number}` : '—'}
+                                                    </span>
+                                                    <h4 className="text-xs font-bold text-gray-900 group-hover:text-wildcats-blue uppercase tracking-wide truncate">
+                                                        {cap.name}
+                                                    </h4>
                                                 </div>
                                             </div>
                                         </div>
-                                    );
-                                })
-                            ) : (
-                                <span className="text-xs text-gray-400 italic py-2">None assigned</span>
-                            )}
-                        </div>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <span className="text-xs text-gray-400 italic py-2">None assigned</span>
+                        )}
+                    </div>
 
-                        <div className="bg-white border border-gray-200 p-3 flex flex-col space-y-2">
-                            <span className="text-[10px] font-bold text-gray-700 uppercase tracking-wider border-b border-gray-100 pb-1">
-                                Assistant Captains
-                            </span>
-                            {assistantObjs.length > 0 ? (
-                                assistantObjs.map(ast => {
-                                    const profilePic = ast.profilePic || DEFAULT_PROFILE_PIC;
-                                    return (
-                                        <div
-                                            key={ast._id}
-                                            onClick={() => handlePlayerClick(ast)}
-                                            className="border border-gray-100 hover:border-wildcats-blue hover:shadow-xs transition-all p-2.5 flex items-center justify-between gap-3 cursor-pointer group bg-gray-50/50"
-                                        >
-                                            <div className="flex items-center gap-3 min-w-0">
-                                                <img
-                                                    src={profilePic}
-                                                    alt=""
-                                                    onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
-                                                    className="w-9 h-9 object-cover rounded-full border border-gray-300 shrink-0"
-                                                />
-                                                <div className="min-w-0">
-                                                    <div className="flex items-center gap-2 flex-wrap">
-                                                        <span className="text-[10px] font-bold text-gray-400 shrink-0">
-                                                            {ast.number ? `#${ast.number}` : '—'}
-                                                        </span>
-                                                        <h4 className="text-xs font-bold text-gray-900 group-hover:text-wildcats-blue uppercase tracking-wide truncate">
-                                                            {ast.name}
-                                                        </h4>
-                                                    </div>
+                    <div className="bg-white border border-gray-200 p-3 flex flex-col space-y-2">
+                        <span className="text-[10px] font-bold text-gray-700 uppercase tracking-wider border-b border-gray-100 pb-1">
+                            Assistant Captains
+                        </span>
+                        {assistantObjs.length > 0 ? (
+                            assistantObjs.map(ast => {
+                                const profilePic = ast.profilePic || DEFAULT_PROFILE_PIC;
+                                return (
+                                    <div
+                                        key={ast._id}
+                                        onClick={() => handlePlayerClick(ast)}
+                                        className="border border-gray-100 hover:border-wildcats-blue hover:shadow-xs transition-all p-2.5 flex items-center justify-between gap-3 cursor-pointer group bg-gray-50/50"
+                                    >
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <img
+                                                src={profilePic}
+                                                alt=""
+                                                onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
+                                                className="w-9 h-9 object-cover rounded-full border border-gray-300 shrink-0"
+                                            />
+                                            <div className="min-w-0">
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <span className="text-[10px] font-bold text-gray-400 shrink-0">
+                                                        {ast.number ? `#${ast.number}` : '—'}
+                                                    </span>
+                                                    <h4 className="text-xs font-bold text-gray-900 group-hover:text-wildcats-blue uppercase tracking-wide truncate">
+                                                        {ast.name}
+                                                    </h4>
                                                 </div>
                                             </div>
                                         </div>
-                                    );
-                                })
-                            ) : (
-                                <span className="text-xs text-gray-400 italic py-2">None assigned</span>
-                            )}
-                        </div>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <span className="text-xs text-gray-400 italic py-2">None assigned</span>
+                        )}
+                    </div>
 
-                        <div className="bg-white border border-gray-200 p-3 flex flex-col space-y-2">
-                            <span className="text-[10px] font-bold text-wildcats-blue uppercase tracking-wider border-b border-gray-100 pb-1">
-                                Coach
-                            </span>
-                            {coachObjs.length > 0 ? (
-                                coachObjs.map(coach => {
-                                    const profilePic = coach.profilePic || DEFAULT_PROFILE_PIC;
-                                    return (
-                                        <div
-                                            key={coach._id}
-                                            onClick={() => handlePlayerClick(coach)}
-                                            className="border border-gray-100 hover:border-wildcats-blue hover:shadow-xs transition-all p-2.5 flex items-center justify-between gap-3 cursor-pointer group bg-gray-50/50"
-                                        >
-                                            <div className="flex items-center gap-3 min-w-0">
-                                                <img
-                                                    src={profilePic}
-                                                    alt=""
-                                                    onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
-                                                    className="w-9 h-9 object-cover rounded-full border border-gray-300 shrink-0"
-                                                />
-                                                <div className="min-w-0">
-                                                    <div className="flex items-center gap-2 flex-wrap">
-                                                        <span className="text-[10px] font-bold text-gray-400 shrink-0">
-                                                            {coach.number ? `#${coach.number}` : '—'}
-                                                        </span>
-                                                        <h4 className="text-xs font-bold text-gray-900 group-hover:text-wildcats-blue uppercase tracking-wide truncate">
-                                                            {coach.name}
-                                                        </h4>
-                                                    </div>
+                    <div className="bg-white border border-gray-200 p-3 flex flex-col space-y-2">
+                        <span className="text-[10px] font-bold text-wildcats-blue uppercase tracking-wider border-b border-gray-100 pb-1">
+                            Coach
+                        </span>
+                        {coachObjs.length > 0 ? (
+                            coachObjs.map(coach => {
+                                const profilePic = coach.profilePic || DEFAULT_PROFILE_PIC;
+                                return (
+                                    <div
+                                        key={coach._id}
+                                        onClick={() => handlePlayerClick(coach)}
+                                        className="border border-gray-100 hover:border-wildcats-blue hover:shadow-xs transition-all p-2.5 flex items-center justify-between gap-3 cursor-pointer group bg-gray-50/50"
+                                    >
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <img
+                                                src={profilePic}
+                                                alt=""
+                                                onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
+                                                className="w-9 h-9 object-cover rounded-full border border-gray-300 shrink-0"
+                                            />
+                                            <div className="min-w-0">
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <span className="text-[10px] font-bold text-gray-400 shrink-0">
+                                                        {coach.number ? `#${coach.number}` : '—'}
+                                                    </span>
+                                                    <h4 className="text-xs font-bold text-gray-900 group-hover:text-wildcats-blue uppercase tracking-wide truncate">
+                                                        {coach.name}
+                                                    </h4>
                                                 </div>
                                             </div>
                                         </div>
-                                    );
-                                })
-                            ) : (
-                                <span className="text-xs text-gray-400 italic py-2">None assigned</span>
-                            )}
-                        </div>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <span className="text-xs text-gray-400 italic py-2">None assigned</span>
+                        )}
                     </div>
                 </div>
-            )}
+            </div>
 
             {trophies.length > 0 && (
                 <div className="space-y-4">
@@ -467,9 +482,9 @@ export default function TeamDetail() {
                     Players
                 </h2>
 
-                {roster.length === 0 ? (
+                {sortedRoster.length === 0 ? (
                     <div className="bg-white border border-gray-200 p-10 text-center text-gray-500 italic text-sm">
-                        No players currently added to this team's roster.
+                        No other players currently added to this team's roster.
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
