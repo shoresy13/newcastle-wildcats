@@ -276,6 +276,7 @@ export default function GameManager() {
         const combinedDateTime = new Date(`${editFormData.date}T${editFormData.time}`);
         const selectedHome = BUIHA_TEAMS[editFormData.homeClubIdx];
         const selectedAway = BUIHA_TEAMS[editFormData.awayClubIdx];
+        const isPast = combinedDateTime < new Date();
 
         handleUpdateGame(game._id, {
             date: combinedDateTime.toISOString(),
@@ -283,20 +284,20 @@ export default function GameManager() {
             venue: editFormData.venue,
             buihaLink: editFormData.buihaLink,
             gameType: editFormData.gameType,
-            status: editFormData.status,
+            status: isPast ? 'END' : editFormData.status,
             homeTeam: {
                 name: `${selectedHome.name} ${editFormData.homeTeamLetter}`,
                 shortName: `${selectedHome.shortName}-${editFormData.homeTeamLetter}`,
                 logo: selectedHome.logo,
                 teamLetter: editFormData.homeTeamLetter,
-                score: Number(editFormData.homeScore) || 0
+                score: isPast ? Number(editFormData.homeScore) || 0 : 0
             },
             awayTeam: {
                 name: `${selectedAway.name} ${editFormData.awayTeamLetter}`,
                 shortName: `${selectedAway.shortName}-${editFormData.awayTeamLetter}`,
                 logo: selectedAway.logo,
                 teamLetter: editFormData.awayTeamLetter,
-                score: Number(editFormData.awayScore) || 0
+                score: isPast ? Number(editFormData.awayScore) || 0 : 0
             }
         });
     };
@@ -748,29 +749,6 @@ export default function GameManager() {
 
                                     <div className="flex-1 flex items-center justify-center gap-3 sm:gap-6 w-full py-2 md:py-0">
                                         <div className="flex-1 flex flex-col items-center text-center gap-2">
-                                            {game.awayTeam.logo ? (
-                                                <img src={game.awayTeam.logo} alt="" className="w-10 h-10 sm:w-14 sm:h-14 object-contain" />
-                                            ) : (
-                                                <div className="w-10 h-10 sm:w-14 sm:h-14 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">
-                                                    {game.awayTeam.teamLetter}
-                                                </div>
-                                            )}
-                                            <span className="text-xs sm:text-sm font-bold text-gray-900 uppercase leading-tight">
-                                                {getFullTeamName(game.awayTeam)}
-                                            </span>
-                                        </div>
-
-                                        <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-200 shadow-xs shrink-0">
-                                            <span className="font-bold text-base sm:text-lg text-gray-900 w-5 sm:w-7 text-center">
-                                                {isEnded ? game.awayTeam.score : '—'}
-                                            </span>
-                                            <span className="text-xs text-gray-300 font-bold">:</span>
-                                            <span className="font-bold text-base sm:text-lg text-gray-900 w-5 sm:w-7 text-center">
-                                                {isEnded ? game.homeTeam.score : '—'}
-                                            </span>
-                                        </div>
-
-                                        <div className="flex-1 flex flex-col items-center text-center gap-2">
                                             {game.homeTeam.logo ? (
                                                 <img src={game.homeTeam.logo} alt="" className="w-10 h-10 sm:w-14 sm:h-14 object-contain" />
                                             ) : (
@@ -780,6 +758,29 @@ export default function GameManager() {
                                             )}
                                             <span className="text-xs sm:text-sm font-bold text-gray-900 uppercase leading-tight">
                                                 {getFullTeamName(game.homeTeam)}
+                                            </span>
+                                        </div>
+
+                                        <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-200 shadow-xs shrink-0">
+                                            <span className="font-bold text-base sm:text-lg text-gray-900 w-5 sm:w-7 text-center">
+                                                {isEnded ? game.homeTeam.score : '—'}
+                                            </span>
+                                            <span className="text-xs text-gray-300 font-bold">:</span>
+                                            <span className="font-bold text-base sm:text-lg text-gray-900 w-5 sm:w-7 text-center">
+                                                {isEnded ? game.awayTeam.score : '—'}
+                                            </span>
+                                        </div>
+
+                                        <div className="flex-1 flex flex-col items-center text-center gap-2">
+                                            {game.awayTeam.logo ? (
+                                                <img src={game.awayTeam.logo} alt="" className="w-10 h-10 sm:w-14 sm:h-14 object-contain" />
+                                            ) : (
+                                                <div className="w-10 h-10 sm:w-14 sm:h-14 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold shrink-0">
+                                                    {game.awayTeam.teamLetter}
+                                                </div>
+                                            )}
+                                            <span className="text-xs sm:text-sm font-bold text-gray-900 uppercase leading-tight">
+                                                {getFullTeamName(game.awayTeam)}
                                             </span>
                                         </div>
                                     </div>
