@@ -130,13 +130,14 @@ export default function CommitteeManager() {
 
     return (
         <div className="max-w-5xl mx-auto p-4 sm:p-6 font-sans space-y-6">
-            <div className="flex items-center justify-between border-b border-gray-200 pb-4 gap-4">
-                <div className="flex flex-wrap items-center gap-3 min-w-0">
-                    <h1 className="text-xl sm:text-2xl font-bold font-wildcats text-wildcats-blue uppercase tracking-wide truncate">
-                        Committee Manager
+            <div className="flex items-center justify-between border-b border-gray-200 pb-4 gap-2">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <h1 className="text-lg sm:text-xl md:text-2xl font-bold font-wildcats text-wildcats-blue uppercase tracking-wide truncate">
+                        <span className="sm:hidden">Committee</span>
+                        <span className="hidden sm:inline">Committee Manager</span>
                     </h1>
                     {statusMessage.text && (
-                        <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 ${
+                        <span className={`text-[8px] sm:text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 sm:px-2.5 sm:py-1 shrink-0 ${
                             statusMessage.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' :
                                 statusMessage.type === 'error' ? 'bg-red-50 text-red-700 border border-red-200' :
                                     'bg-blue-50 text-wildcats-blue border border-blue-200 animate-pulse'
