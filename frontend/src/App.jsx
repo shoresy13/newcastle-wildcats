@@ -12,7 +12,7 @@ import News from "./pages/News.jsx";
 import Games from "./pages/Games.jsx";
 import Teams from "./pages/Teams.jsx";
 import TeamDetail from "./pages/TeamDetail.jsx";
-import Contact from "./pages/Contact.jsx";
+import Committee from "./pages/Committee.jsx";
 import Login from "./pages/Login.jsx";
 
 import Admin from "./pages/Admin.jsx"
@@ -64,7 +64,7 @@ export default function App() {
                 <Route path="games" element={<Games />} />
                 <Route path="teams" element={<Teams />} />
                 <Route path="/teams/:teamId" element={<TeamDetail />} />
-                <Route path="contact" element={<Contact />} />
+                <Route path="committee" element={<Committee />} />
                 <Route path="login" element={<Login />} />
 
                 <Route element={<ProtectedRoute />}>

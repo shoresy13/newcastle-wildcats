@@ -1,7 +1,7 @@
 import React from 'react';
 import wildcatsLogo from '../assets/wildcats-logo.png';
 
-export default function Contact() {
+export default function Committee() {
     return (
         <div className="min-h-[75vh] flex flex-col items-center justify-center p-6 text-center font-sans bg-gray-50/50">
             <div className="max-w-lg w-full bg-white border border-gray-200 p-8 sm:p-10 shadow-sm relative overflow-hidden">

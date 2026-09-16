@@ -21,7 +21,7 @@ export default function Footer() {
         { label: "News", href: "/news" },
         { label: "Games", href: "/games" },
         { label: "Teams", href: "/teams" },
-        { label: "Contact", href: "/contact" },
+        { label: "Committee", href: "/committee" },
     ];
 
     const legalLinks = [

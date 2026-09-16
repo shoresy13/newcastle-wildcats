@@ -38,7 +38,7 @@ export default function Navbar() {
         { name: "News", path: "/news" },
         { name: "Games", path: "/games" },
         { name: "Teams", path: "/teams" },
-        { name: "Contact", path: "/contact" },
+        { name: "Committee", path: "/committee" },
     ];
 
     const links = isAdmin
