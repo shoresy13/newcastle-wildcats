@@ -6,11 +6,15 @@ import express from 'express';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
+import multer from 'multer';
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary-v2';
 
 import User from './models/User.js';
 import gameRoutes from './routes/gameRoutes.js';
 import teamRoutes from './routes/teamRoutes.js';
 import playerRoutes from './routes/playerRoutes.js';
+import committeeRoutes from "./routes/committeeRoutes.js";
 
 dotenv.config();
 
@@ -21,6 +25,23 @@ mongoose
     .connect(process.env.MONGO_URI)
     .then(() => console.log('MongoDB Atlas Connected Successfully'))
     .catch((err) => console.error('MongoDB Connection Error:', err));
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'newcastle-wildcats-committee',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+        public_id: (req, file) => `${Date.now()}-${file.originalname.split('.')[0]}`,
+    },
+});
+
+const upload = multer({ storage: storage });
 
 const allowedOrigins = [
     'http://localhost:5173',
@@ -51,6 +72,19 @@ app.use(express.json());
 app.use('/api/games', gameRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/players', playerRoutes);
+app.use('/api/committee', committeeRoutes);
+
+app.post('/api/upload', upload.single('image'), (req, res) => {
+    try {
+        if (!req.file || !req.file.path) {
+            return res.status(400).json({ error: 'Image upload failed' });
+        }
+        res.json({ url: req.file.path });
+    } catch (err) {
+        console.error('Cloudinary upload error:', err);
+        res.status(500).json({ error: 'Server error during upload' });
+    }
+});
 
 app.get('/api/standings/:divisionId', async (req, res) => {
     try {

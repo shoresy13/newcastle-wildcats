@@ -33,7 +33,7 @@ export default function Admin() {
                         Team Manager
                     </h2>
                     <p className="text-xs text-gray-600 leading-relaxed">
-                        Manage team details, divisions, descriptions, and staff.
+                        Manage team details, divisions, descriptions and staff.
                     </p>
                 </Link>
 
@@ -47,6 +47,19 @@ export default function Admin() {
                     </h2>
                     <p className="text-xs text-gray-600 leading-relaxed">
                         Add players to club, update numbers and BUIHA links.
+                    </p>
+                </Link>
+
+                <Link
+                    to="/admin/committee-manager"
+                    className="bg-white border border-gray-200 shadow-md p-6 hover:border-wildcats-blue hover:shadow-lg transition-all group block relative overflow-hidden"
+                >
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-wildcats-blue group-hover:bg-wildcats-red transition-colors" />
+                    <h2 className="text-base font-bold font-wildcats text-gray-800 uppercase tracking-wide group-hover:text-wildcats-blue transition-colors mb-2">
+                        Committee Manager
+                    </h2>
+                    <p className="text-xs text-gray-600 leading-relaxed">
+                        Update committee roles, names, profile images and descriptions.
                     </p>
                 </Link>
             </div>
