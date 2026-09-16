@@ -113,6 +113,13 @@ export default function CommitteeManager() {
         }
     };
 
+    const handleRemoveImage = async (index) => {
+        const updated = [...committee];
+        updated[index]['image'] = '';
+        setCommittee(updated);
+        await persistChanges(updated);
+    };
+
     if (loading) {
         return (
             <div className="max-w-5xl mx-auto p-6 font-sans text-center text-gray-400 font-bold uppercase tracking-widest py-12">
@@ -188,18 +195,27 @@ export default function CommitteeManager() {
                                     onError={(e) => { e.target.src = DEFAULT_PROFILE_PIC; }}
                                     className="w-10 h-10 object-cover rounded-full border border-gray-300 shrink-0"
                                 />
-                                <div className="w-full">
+                                <div className="w-full flex items-center gap-2">
                                     <input
                                         type="file"
                                         accept="image/*"
                                         onChange={(e) => handleImageUpload(index, e)}
                                         className="w-full text-xs text-gray-500 file:mr-4 file:py-1.5 file:px-3 file:border-0 file:text-[10px] file:font-bold file:uppercase file:tracking-wider file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer"
                                     />
-                                    {uploadingIndex === index && (
-                                        <span className="text-[10px] font-bold text-wildcats-blue uppercase tracking-wider mt-1 block">Uploading to Cloudinary...</span>
+                                    {member.image && member.image !== DEFAULT_PROFILE_PIC && (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveImage(index)}
+                                            className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition-colors cursor-pointer whitespace-nowrap shrink-0 shadow-xs"
+                                        >
+                                            Remove
+                                        </button>
                                     )}
                                 </div>
                             </div>
+                            {uploadingIndex === index && (
+                                <span className="text-[10px] font-bold text-wildcats-blue uppercase tracking-wider mt-1 block">Uploading to Cloudinary...</span>
+                            )}
                         </div>
 
                         <div>
