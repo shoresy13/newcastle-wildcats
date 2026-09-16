@@ -13,6 +13,12 @@ const POSITION_LABELS = {
     'F': 'Forward'
 };
 
+const DIVISION_MAP = {
+    'a': '301',
+    'b': '305',
+    'c': null
+};
+
 export default function TeamDetail() {
     const { teamId } = useParams();
     const navigate = useNavigate();
@@ -20,6 +26,8 @@ export default function TeamDetail() {
     const [team, setTeam] = useState(null);
     const [players, setPlayers] = useState([]);
     const [games, setGames] = useState([]);
+    const [standings, setStandings] = useState([]);
+    const [divisionBlip, setDivisionBlip] = useState('');
     const [loading, setLoading] = useState(true);
 
     const API_BASE = (import.meta.env.VITE_API_URL || 'https://newcastle-wildcats.onrender.com').replace(/\/$/, '');
@@ -42,6 +50,20 @@ export default function TeamDetail() {
 
                 setTeam(foundTeam);
                 setPlayers(playersData);
+
+                const divisionId = DIVISION_MAP[foundTeam.id?.toLowerCase()];
+                if (divisionId) {
+                    try {
+                        const standingsRes = await fetch(`${API_BASE}/api/standings/${divisionId}`);
+                        if (standingsRes.ok) {
+                            const standingsData = await standingsRes.json();
+                            setStandings(standingsData.standings || []);
+                            setDivisionBlip(standingsData.blip || '');
+                        }
+                    } catch (standingsErr) {
+                        console.warn('Could not fetch standings from backend proxy:', standingsErr);
+                    }
+                }
 
                 try {
                     const gamesRes = await fetch(`${API_BASE}/api/games`);
@@ -529,12 +551,68 @@ export default function TeamDetail() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-6 border-t border-gray-200 items-stretch">
-                <div className="bg-white border border-gray-200 p-5 flex flex-col justify-between">
-                    <h2 className="text-sm font-bold font-wildcats text-wildcats-blue uppercase tracking-wider border-b border-gray-200 pb-1.5 mb-4">
-                        League Standings
-                    </h2>
-                    <div className="flex-1 flex flex-col items-center justify-center text-gray-400 italic text-xs py-20">
-                        <span>No league table data. </span>
+                <div className="bg-white border border-gray-200 p-4 sm:p-5 flex flex-col justify-between shadow-sm">
+                    <div>
+                        <div className="flex items-center justify-between border-b border-gray-200 pb-1.5 mb-3">
+                            <h2 className="text-sm font-bold font-wildcats text-wildcats-blue uppercase tracking-wider">
+                                {divisionBlip || 'League Standings'}
+                            </h2>
+                        </div>
+
+                        {!DIVISION_MAP[team.id?.toLowerCase()] ? (
+                            <div className="text-center text-gray-400 italic text-xs py-16">
+                                No league table - team is unregistered
+                            </div>
+                        ) : standings.length === 0 ? (
+                            <div className="text-center text-gray-400 italic text-xs py-12">
+                                Loading league table...
+                            </div>
+                        ) : (
+                            <div className="w-full overflow-x-auto">
+                                <table className="w-full text-left border-collapse min-w-[300px]">
+                                    <thead>
+                                    <tr className="border-b border-gray-200 text-[10px] font-bold uppercase text-gray-400 tracking-wider">
+                                        <th colSpan="2" className="py-2 px-1">TEAM</th>
+                                        <th className="py-2 px-1 text-center whitespace-nowrap">GP</th>
+                                        <th className="py-2 px-1 text-center whitespace-nowrap">W</th>
+                                        <th className="py-2 px-1 text-center whitespace-nowrap">L</th>
+                                        <th className="py-2 px-1 text-center whitespace-nowrap">D</th>
+                                        <th className="py-2 px-1 text-center whitespace-nowrap">GD</th>
+                                        <th className="py-2 px-1 text-right whitespace-nowrap pr-2">Pts</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100 text-[11px] sm:text-xs font-semibold text-gray-800">
+                                    {standings.map((row, idx) => {
+                                        const isCurrentTeam = row.name?.toLowerCase().includes('wildcat') || row.name?.toLowerCase().includes(team.name.toLowerCase());
+                                        const goalDiff = (row.gf || 0) - (row.ga || 0);
+                                        const formattedGD = goalDiff > 0 ? `+${goalDiff}` : `${goalDiff}`;
+                                        const teamLogo = row.logo?.xs || row.logo?.md || '';
+
+                                        return (
+                                            <tr key={row.id || idx} className={`transition-colors ${isCurrentTeam ? 'bg-blue-50 font-bold text-wildcats-blue' : 'hover:bg-gray-50'}`}>
+                                                <td className="py-2.5 px-1 w-6">
+                                                    {teamLogo ? (
+                                                        <img src={teamLogo} alt="" className="w-4 h-4 sm:w-5 sm:h-5 object-contain mx-auto" />
+                                                    ) : (
+                                                        <span className="text-[10px] text-gray-400 text-center block">{idx + 1}</span>
+                                                    )}
+                                                </td>
+                                                <td className="py-2.5 px-1 uppercase max-w-[100px] sm:max-w-[180px] truncate" title={row.name}>
+                                                    <span className="truncate block">{row.name}</span>
+                                                </td>
+                                                <td className="py-2.5 px-1 text-center text-gray-600 whitespace-nowrap">{row.games ?? '—'}</td>
+                                                <td className="py-2.5 px-1 text-center text-gray-600 whitespace-nowrap">{row.wins ?? '—'}</td>
+                                                <td className="py-2.5 px-1 text-center text-gray-600 whitespace-nowrap">{row.losses ?? '—'}</td>
+                                                <td className="py-2.5 px-1 text-center text-gray-600 whitespace-nowrap">{row.draws ?? '—'}</td>
+                                                <td className="py-2.5 px-1 text-center text-gray-600 whitespace-nowrap">{formattedGD}</td>
+                                                <td className="py-2.5 px-1 text-right whitespace-nowrap pr-2 text-gray-900 font-bold">{row.points ?? '—'}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </div>
                 </div>
 

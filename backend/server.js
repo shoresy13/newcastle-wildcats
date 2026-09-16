@@ -52,6 +52,19 @@ app.use('/api/games', gameRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/players', playerRoutes);
 
+app.get('/api/standings/:divisionId', async (req, res) => {
+    try {
+        const { divisionId } = req.params;
+        const response = await fetch(`https://api.buiha.org.uk/division/${divisionId}/standings/`);
+        if (!response.ok) throw new Error('Failed to fetch standings from BUIHA');
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Error proxying BUIHA standings:', error);
+        res.status(500).json({ message: 'Error fetching division standings' });
+    }
+});
+
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
