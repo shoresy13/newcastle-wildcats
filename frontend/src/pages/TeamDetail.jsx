@@ -113,9 +113,9 @@ export default function TeamDetail() {
         if (wildcatScore > oppScore) {
             return { text: 'WIN', className: 'border-green-600 text-green-700 bg-green-50' };
         } else if (wildcatScore < oppScore) {
-            return { text: 'LOSS', className: 'border-red-600 text-red-700 bg-green-50' };
+            return { text: 'LOSS', className: 'border-red-600 text-red-700 bg-red-50' };
         } else {
-            return { text: 'DRAW', className: 'border-yellow-600 text-yellow-700 bg-green-50' };
+            return { text: 'DRAW', className: 'border-yellow-600 text-yellow-700 bg-yellow-50' };
         }
     };
 
