@@ -12,6 +12,18 @@ export default function Admin() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 <Link
+                    to="/admin/news-manager"
+                    className="bg-white border border-gray-200 shadow-md p-6 hover:border-wildcats-blue hover:shadow-lg transition-all group block relative overflow-hidden"
+                >
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-wildcats-blue group-hover:bg-wildcats-red transition-colors" />
+                    <h2 className="text-base font-bold font-wildcats text-gray-800 uppercase tracking-wide group-hover:text-wildcats-blue transition-colors mb-2">
+                        News Manager
+                    </h2>
+                    <p className="text-xs text-gray-600 leading-relaxed">
+                        Add new articles, add club information and manage news.
+                    </p>
+                </Link>
+                <Link
                     to="/admin/game-manager"
                     className="bg-white border border-gray-200 shadow-md p-6 hover:border-wildcats-blue hover:shadow-lg transition-all group block relative overflow-hidden"
                 >
@@ -23,7 +35,6 @@ export default function Admin() {
                         Create new fixtures and update scores for games.
                     </p>
                 </Link>
-
                 <Link
                     to="/admin/team-manager"
                     className="bg-white border border-gray-200 shadow-md p-6 hover:border-wildcats-blue hover:shadow-lg transition-all group block relative overflow-hidden"

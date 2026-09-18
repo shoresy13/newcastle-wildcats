@@ -21,6 +21,7 @@ import TeamManager from "./pages/TeamManager.jsx";
 import TeamEdit from "./pages/TeamEdit.jsx";
 import PlayerManager from "./pages/PlayerManager.jsx";
 import CommitteeManager from "./pages/CommitteeManager.jsx";
+import NewsManager from "./pages/NewsManager.jsx"
 
 
 function ScrollToTop() {
@@ -75,6 +76,7 @@ export default function App() {
                     <Route path="admin/team-manager/:teamId" element={<TeamEdit />} />
                     <Route path="admin/player-manager" element={<PlayerManager />} />
                     <Route path="admin/committee-manager" element={<CommitteeManager />} />
+                    <Route path="admin/news-manager" element={<NewsManager />} />
                 </Route>
             </Route>
         </Routes>

@@ -11,6 +11,7 @@ import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary-v2';
 
 import User from './models/User.js';
+import newsRoutes from './routes/newsRoutes.js'
 import gameRoutes from './routes/gameRoutes.js';
 import teamRoutes from './routes/teamRoutes.js';
 import playerRoutes from './routes/playerRoutes.js';
@@ -69,6 +70,7 @@ app.use(
 
 app.use(express.json());
 
+app.use('/api/news', newsRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/players', playerRoutes);
